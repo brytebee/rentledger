@@ -99,3 +99,17 @@ BEGIN
           );
     END IF;
 END $$;
+-- 7. Fix User Profile Trigger (Add phone_number)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, phone_number, role)
+  VALUES (
+    new.id, 
+    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),
+    new.raw_user_meta_data->>'phone_number',
+    COALESCE((new.raw_user_meta_data->>'role')::user_role, 'tenant')
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;

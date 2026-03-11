@@ -1,31 +1,76 @@
--- DASHBOARD UPGRADE: Server-Side Aggregations (Views)
--- These views calculate dashboard metrics directly in Postgres for better performance.
+-- DASHBOARD FIX: Synchronized Overdue Logic
+-- This version ensures the counts perfectly match the frontend list logic.
 
--- 1. Landlord Dashboard Stats View
 CREATE OR REPLACE VIEW public.landlord_dashboard_stats AS
+WITH landlord_base AS (
+    -- Get one row per landlord who has at least one property
+    SELECT landlord_id 
+    FROM public.properties 
+    GROUP BY landlord_id
+)
 SELECT 
-    p.landlord_id,
-    COUNT(DISTINCT p.id) as total_properties,
-    COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'active') as active_tenants,
-    COALESCE(SUM(pm.amount) FILTER (WHERE pm.status = 'verified'), 0) as total_revenue,
-    COUNT(pm.id) FILTER (WHERE pm.status = 'pending') as pending_payments_count,
-    -- Overdue calculation: active tenancies with due date in the past and no verified payment this month
-    COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'active' AND t.next_due_date < CURRENT_DATE AND (
-        NOT EXISTS (
-            SELECT 1 FROM public.payments p2 
-            WHERE p2.tenancy_id = t.id 
-            AND p2.status = 'verified' 
-            AND (p2.payment_date >= date_trunc('month', CURRENT_DATE) OR p2.created_at >= date_trunc('month', CURRENT_DATE))
-        )
-    )) as overdue_tenants_count
+    lb.landlord_id,
+    -- 1. Property Count
+    (SELECT COUNT(*) FROM public.properties WHERE landlord_id = lb.landlord_id) as total_properties,
+    
+    -- 2. Active Tenants Count
+    (
+        SELECT COUNT(DISTINCT t.id) 
+        FROM public.tenancies t
+        JOIN public.units u ON t.unit_id = u.id
+        JOIN public.properties p ON u.property_id = p.id
+        WHERE p.landlord_id = lb.landlord_id AND t.status = 'active'
+    ) as active_tenants,
+    
+    -- 3. Financial Metrics
+    COALESCE((
+        SELECT SUM(pm.amount) 
+        FROM public.payments pm
+        JOIN public.tenancies t ON pm.tenancy_id = t.id
+        JOIN public.units u ON t.unit_id = u.id
+        JOIN public.properties p ON u.property_id = p.id
+        WHERE p.landlord_id = lb.landlord_id AND pm.status = 'verified'
+    ), 0) as total_revenue,
+    
+    -- 4. Pending Payments Count
+    (
+        SELECT COUNT(*) 
+        FROM public.payments pm
+        JOIN public.tenancies t ON pm.tenancy_id = t.id
+        JOIN public.units u ON t.unit_id = u.id
+        JOIN public.properties p ON u.property_id = p.id
+        WHERE p.landlord_id = lb.landlord_id AND pm.status = 'pending'
+    ) as pending_payments_count,
+    
+    -- 5. Overdue Tenants Count
+    (
+        SELECT COUNT(*)
+        FROM public.tenancies t
+        JOIN public.units u ON t.unit_id = u.id
+        JOIN public.properties p ON u.property_id = p.id
+        WHERE p.landlord_id = lb.landlord_id
+          AND t.status = 'active'
+          AND (
+            -- Case A: Due date has passed and NO verified payment exists for THIS tenancy in the current month
+            (t.next_due_date < CURRENT_DATE AND NOT EXISTS (
+                SELECT 1 FROM public.payments p_check
+                WHERE p_check.tenancy_id = t.id
+                  AND p_check.status = 'verified'
+                  AND (p_check.payment_date >= t.next_due_date OR p_check.created_at >= t.next_due_date)
+            ))
+            OR
+            -- Case B: There IS a pending payment that is past its stated payment_date
+            EXISTS (
+                SELECT 1 FROM public.payments p_pending
+                WHERE p_pending.tenancy_id = t.id
+                  AND p_pending.status = 'pending'
+                  AND p_pending.payment_date < CURRENT_DATE
+            )
+          )
+    ) as overdue_tenants_count
 FROM 
-    public.properties p
-LEFT JOIN public.units u ON p.id = u.property_id
-LEFT JOIN public.tenancies t ON u.id = t.unit_id
-LEFT JOIN public.payments pm ON t.id = pm.tenancy_id
-GROUP BY 
-    p.landlord_id;
+    landlord_base lb;
 
--- 2. Grant permissions (Supabase RLS handles the underlying data, but views need explicit grants)
+-- Ensure permissions
 GRANT SELECT ON public.landlord_dashboard_stats TO authenticated;
 GRANT SELECT ON public.landlord_dashboard_stats TO service_role;

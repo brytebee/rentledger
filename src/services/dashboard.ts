@@ -90,7 +90,7 @@ export const dashboardService = {
         return { data: null, error: statsError.message };
       }
 
-      // 2. Fetch recent payments (still needed for the list component)
+      // 2. Fetch recent payments (filtered by landlord)
       const { data: payments, error: paymentsError } = await supabase
         .from("payments")
         .select(`
@@ -102,9 +102,13 @@ export const dashboardService = {
             id,
             next_due_date,
             profiles!inner (full_name),
-            units!inner (name)
+            units!inner (
+              name,
+              properties!inner (landlord_id)
+            )
           )
         `)
+        .eq("tenancies.units.properties.landlord_id", landlordId)
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -130,11 +134,11 @@ export const dashboardService = {
 
       const summary: DashboardSummary = {
         totalRevenue: stats?.total_revenue ?? 0,
-        revenueGrowth: 0, // Future feature
-        pendingPayments: stats?.pending_payments_count ?? 0,
-        overduePayments: stats?.overdue_tenants_count ?? 0,
-        activeTenantsCount: stats?.active_tenants ?? 0,
-        propertiesCount: stats?.total_properties ?? 0,
+        revenueGrowth: 0,
+        pendingPayments: Number(stats?.pending_payments_count ?? 0),
+        overduePayments: Number(stats?.overdue_tenants_count ?? 0),
+        activeTenantsCount: Number(stats?.active_tenants ?? 0),
+        propertiesCount: Number(stats?.total_properties ?? 0),
         recentPayments,
       };
 
@@ -148,91 +152,50 @@ export const dashboardService = {
     tenantId: string,
   ): Promise<{ data: TenantDashboardData | null; error: string | null }> {
     try {
-      const { data: tenancyRaw, error: tenancyError } = await supabase
-        .from("tenancies")
-        .select(
-          `
-          id,
-          start_date,
-          next_due_date,
-          rent_cycle,
-          status,
-          unit:units!inner (
-            id,
-            name,
-            rent_amount,
-            property:properties!inner (
-              id,
-              name,
-              address
-            )
-          )
-        `,
-        )
+      // 1. Fetch tenancy and unit stats from optimized view
+      const { data: stats, error: statsError } = await supabase
+        .from("tenant_dashboard_stats")
+        .select("*")
         .eq("tenant_id", tenantId)
-        .eq("status", "active")
+        .eq("tenancy_status", "active")
         .single();
 
-      if (tenancyError || !tenancyRaw) {
-        return {
-          data: null,
-          error: tenancyError?.message || "No active tenancy",
-        };
+      if (statsError) {
+        return { data: null, error: statsError.message || "No active tenancy found" };
       }
 
-      const tenancy = tenancyRaw as unknown as TenancyWithUnit;
-
-      const { data: paymentsRaw, error: paymentsError } = await supabase
+      // 2. Fetch payment history
+      const { data: payments, error: paymentsError } = await supabase
         .from("payments")
         .select("*")
-        .eq("tenancy_id", tenancy.id)
+        .eq("tenancy_id", stats.tenancy_id)
         .order("created_at", { ascending: false })
         .limit(10);
 
       if (paymentsError) {
-        return {
-          data: null,
-          error: paymentsError.message || "Failed to fetch payments",
-        };
+        return { data: null, error: paymentsError.message };
       }
 
-      const payments = paymentsRaw as PaymentRow[];
-
       const now = new Date();
-      const dueDate = new Date(tenancy.next_due_date);
-      const isOverdue = dueDate < now;
-      const daysUntilDue = Math.ceil(
-        (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      );
-
-      const lastPayment = payments?.[0];
-      const currentStatus = !lastPayment
-        ? isOverdue
-          ? "overdue"
-          : "pending"
-        : lastPayment.status === "verified"
-          ? "paid"
-          : isOverdue
-            ? "overdue"
-            : "pending";
+      const dueDate = new Date(stats.next_due_date);
+      const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
       const summary: TenantDashboardData = {
         tenancy: {
-          id: tenancy.id,
-          unitName: tenancy.unit.name,
-          propertyName: tenancy.unit.property.name,
-          propertyAddress: tenancy.unit.property.address,
-          rentAmount: tenancy.unit.rent_amount,
-          dueDate: tenancy.next_due_date,
+          id: stats.tenancy_id,
+          unitName: stats.unit_name,
+          propertyName: stats.property_name,
+          propertyAddress: stats.property_address,
+          rentAmount: stats.rent_amount,
+          dueDate: stats.next_due_date,
           daysUntilDue: daysUntilDue > 0 ? daysUntilDue : 0,
-          isOverdue,
+          isOverdue: stats.current_status === "overdue",
         },
-        currentStatus: currentStatus as "paid" | "pending" | "overdue",
+        currentStatus: stats.current_status as "paid" | "pending" | "overdue",
         paymentHistory: (payments ?? []).map((p) => ({
           id: p.id,
           amount: p.amount,
-          status:
-            p.status === "verified" ? "paid" : "pending",
+          status: p.status === "verified" ? "paid" : "pending",
           date: p.payment_date || p.created_at || "",
         })),
       };
