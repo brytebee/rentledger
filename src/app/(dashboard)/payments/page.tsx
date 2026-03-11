@@ -215,9 +215,6 @@ export default function PaymentsPage() {
               {
                 value: "pending",
                 label: "Pending",
-                count:
-                  payments.filter((p) => p.status === "pending").length ||
-                  undefined,
               },
               { value: "verified", label: "Verified" },
               { value: "rejected", label: "Rejected" },
@@ -228,11 +225,6 @@ export default function PaymentsPage() {
                 className="rounded-xl text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-4 py-2 min-h-[36px] gap-1.5"
               >
                 {tab.label}
-                {tab.count ? (
-                  <span className="bg-blue-500 text-white text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full">
-                    {tab.count}
-                  </span>
-                ) : null}
               </TabsTrigger>
             ))}
           </TabsList>

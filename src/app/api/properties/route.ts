@@ -32,76 +32,46 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
+  const search = searchParams.get("search") || "";
+  const filter = searchParams.get("filter") || "all";
+  
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const {
-    data: properties,
-    count,
-    error,
-  } = await supabase
-    .from("properties")
-    .select(
-      `
-      id, name, address, created_at,
-      units (
-        id, name,
-        tenancies (
-          id, status, next_due_date,
-          payments ( id, status )
-        )
-      )
-    `,
-      { count: "exact" },
-    )
+  let query = supabase
+    .from("property_list_view")
+    .select("*", { count: "exact" })
     .eq("landlord_id", userId)
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .order("created_at", { ascending: false });
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,address.ilike.%${search}%`);
+  }
+
+  if (filter === "overdue") {
+    query = query.gt("overdue_payments", 0);
+  } else if (filter === "pending") {
+    query = query.gt("pending_payments", 0);
+  } else if (filter === "vacant") {
+    query = query.eq("active_tenants", 0);
+  }
+
+  const { data: properties, count, error } = await query.range(from, to);
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const now = new Date();
+  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const items: PropertyItem[] = (properties ?? []).map((p: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const allTenancies = (p.units ?? []).flatMap((u: any) => u.tenancies ?? []);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const activeTenancies = allTenancies.filter(
-      (t: any) => t.status === "active",
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pending = allTenancies.filter((t: any) => {
-      if (t.status !== "active") return false;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasPendingPayment = t.payments?.some(
-        (pay: any) => pay.status === "pending",
-      );
-      return hasPendingPayment && new Date(t.next_due_date) >= now;
-    }).length;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const overdue = allTenancies.filter((t: any) => {
-      if (t.status !== "active") return false;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasPayment = t.payments?.some(
-        (pay: any) => pay.status !== "paid" && pay.status !== "verified",
-      );
-      return hasPayment && new Date(t.next_due_date) < now;
-    }).length;
-
-    return {
-      id: p.id,
-      name: p.name,
-      address: p.address ?? "",
-      unitsCount: (p.units ?? []).length,
-      activeTenants: activeTenancies.length,
-      pendingPayments: pending,
-      overduePayments: overdue,
-      createdAt: p.created_at,
-    };
-  });
+  const items: PropertyItem[] = (properties ?? []).map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    address: p.address ?? "",
+    unitsCount: p.units_count,
+    activeTenants: p.active_tenants,
+    pendingPayments: p.pending_payments,
+    overduePayments: p.overdue_payments,
+    createdAt: p.created_at,
+  }));
 
   const totalPages = Math.ceil((count ?? 0) / limit);
 

@@ -309,7 +309,46 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      property_list_view: {
+        Row: {
+          id: string
+          landlord_id: string
+          name: string
+          address: string | null
+          created_at: string | null
+          units_count: number
+          active_tenants: number
+          pending_payments: number
+          overdue_payments: number
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
+      payment_list_view: {
+        Row: {
+          id: string
+          amount: number
+          raw_status: Database["public"]["Enums"]["payment_status"] | null
+          payment_date: string | null
+          reference: string | null
+          proof_url: string | null
+          created_at: string | null
+          tenancy_id: string
+          due_date: string | null
+          unit_id: string
+          unit_name: string
+          property_id: string
+          landlord_id: string
+          property_name: string
+          tenant_id: string
+          tenant_name: string
+          effective_status: "paid" | "pending" | "overdue" | "rejected"
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

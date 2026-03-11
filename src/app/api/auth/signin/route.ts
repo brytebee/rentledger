@@ -39,11 +39,11 @@ export async function POST(req: NextRequest) {
     //   ),
     // ]);
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase
       .from("profiles")
-      .select("id, full_name, role, phone_number")
+      .select("*")
       .eq("id", data.user.id)
-      .single();
+      .single() as any);
 
     const role =
       (profile?.role as UserRole) || data.user.user_metadata?.role || "tenant";

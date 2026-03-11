@@ -14,11 +14,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase
       .from("profiles")
       .select("id, full_name, role, phone_number")
       .eq("id", user.id)
-      .single()
+      .single() as any)
 
     return NextResponse.json({
       user: {

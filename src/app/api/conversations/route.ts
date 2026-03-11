@@ -65,26 +65,26 @@ export async function POST(req: NextRequest) {
   }
 
   // Check if conversation already exists
-  const { data: existing } = await supabase
+  const { data: existing } = await (supabase
     .from("conversations")
     .select("id")
     .eq("landlord_id", userData.id)
     .eq("tenant_id", tenant_id)
-    .single()
+    .single() as any)
 
   if (existing) {
     return NextResponse.json({ conversation_id: existing.id })
   }
 
   // Create new conversation
-  const { data, error } = await supabase
+  const { data, error } = await ((supabase as any)
     .from("conversations")
     .insert({
       landlord_id: userData.id,
       tenant_id,
     })
     .select()
-    .single()
+    .single());
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

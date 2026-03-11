@@ -32,42 +32,36 @@ export async function GET(req: NextRequest) {
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const searchParams = req.nextUrl.searchParams
-  const page = parseInt(searchParams.get("page") || "1")
-  const limit = parseInt(searchParams.get("limit") || "10")
-  const statusFilter = searchParams.get("status") ?? "all"
-  const from = (page - 1) * limit
-  const to = from + limit - 1
+  const searchParams = req.nextUrl.searchParams;
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const statusFilter = searchParams.get("status") ?? "all";
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const { data: rows, count, error } = await supabase
-    .from("payments")
-    .select(
-      `
-    id, amount, status, payment_date, reference, proof_url,
-    tenancies!inner(id, next_due_date, units!inner(name, properties!inner(landlord_id, name)), profiles!inner(full_name))
-  `,
-      { count: "exact" }
-    )
-    .eq("tenancies.units.properties.landlord_id", userId)
-    .order("payment_date", { ascending: false })
-    .range(from, to)
+  let query = supabase
+    .from("payment_list_view")
+    .select("*", { count: "exact" })
+    .eq("landlord_id", userId)
+    .order("payment_date", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  if (statusFilter === "pending") {
+    query = query.eq("effective_status", "pending");
+  } else if (statusFilter === "verified" || statusFilter === "paid") {
+    query = query.eq("effective_status", "paid");
+  } else if (statusFilter === "rejected") {
+    query = query.eq("effective_status", "rejected");
+  }
+
+  const { data: rows, count, error } = await query.range(from, to);
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const now = new Date();
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mapped: PaymentRow[] = (rows ?? []).map((p: any) => {
-    const dueDate = p.tenancies?.next_due_date;
-    const isOverdue =
-      p.status !== "verified" && p.status !== "paid" && new Date(dueDate) < now;
-    const effectiveStatus = isOverdue
-      ? "overdue"
-      : p.status === "verified"
-        ? "paid"
-        : p.status;
-    const name = p.tenancies?.profiles?.full_name ?? "Unknown";
+  const mapped: PaymentRow[] = (rows ?? []).map((p: any) => {
+    const name = p.tenant_name ?? "Unknown";
     return {
       id: p.id,
       tenantName: name,
@@ -77,33 +71,29 @@ export async function GET(req: NextRequest) {
         .join("")
         .toUpperCase()
         .slice(0, 2),
-      unitLabel: `Unit ${p.tenancies?.units?.name ?? "N/A"}`,
-      propertyName: p.tenancies?.units?.properties?.name ?? "",
+      unitLabel: `Unit ${p.unit_name ?? "N/A"}`,
+      propertyName: p.property_name ?? "",
       amount: p.amount ?? 0,
-      status: effectiveStatus as "paid" | "pending" | "overdue" | "rejected",
-      dueDate: dueDate,
+      status: p.effective_status as "paid" | "pending" | "overdue" | "rejected",
+      dueDate: p.due_date,
       paidAt: p.payment_date ?? null,
       reference: p.reference ?? null,
       proofUrl: p.proof_url ?? null,
     };
   });
 
-  if (statusFilter === "pending")
-    mapped = mapped.filter((p) => p.status === "pending");
-  else if (statusFilter === "verified")
-    mapped = mapped.filter((p) => p.status === "paid");
-  else if (statusFilter === "rejected")
-    mapped = mapped.filter((p) => p.status === "rejected");
+  const totalPages = Math.ceil((count ?? 0) / limit);
 
-  const totalPages = Math.ceil((count ?? 0) / limit)
-
-  return NextResponse.json({ 
-    payments: mapped,
-    pagination: {
-      page,
-      limit,
-      total: count ?? 0,
-      totalPages
-    }
-  }, { status: 200 });
+  return NextResponse.json(
+    {
+      payments: mapped,
+      pagination: {
+        page,
+        limit,
+        total: count ?? 0,
+        totalPages,
+      },
+    },
+    { status: 200 },
+  );
 }

@@ -61,40 +61,33 @@ export default function PropertiesPage() {
     totalPages: 0,
   });
 
-  const fetchProperties = useCallback(async (page = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data } = await axios.get(`/api/properties?page=${page}&limit=10`);
-      setProperties(data.properties ?? []);
-      setPagination(
-        data.pagination ?? { page, limit: 10, total: 0, totalPages: 0 },
-      );
-    } catch (err) {
-      const e = err as AxiosError<{ error: string }>;
-      setError(e.response?.data?.error ?? "Failed to load properties.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchProperties = useCallback(
+    async (page = 1, currentSearch = search, currentFilter = filter) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data } = await axios.get(
+          `/api/properties?page=${page}&limit=10&search=${encodeURIComponent(
+            currentSearch,
+          )}&filter=${encodeURIComponent(currentFilter)}`,
+        );
+        setProperties(data.properties ?? []);
+        setPagination(
+          data.pagination ?? { page, limit: 10, total: 0, totalPages: 0 },
+        );
+      } catch (err) {
+        const e = err as AxiosError<{ error: string }>;
+        setError(e.response?.data?.error ?? "Failed to load properties.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [search, filter],
+  );
 
   useEffect(() => {
-    fetchProperties(1);
-  }, [fetchProperties]);
-
-  const filtered = useMemo(() => {
-    let list = properties;
-    if (search.trim())
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.address.toLowerCase().includes(search.toLowerCase()),
-      );
-    if (filter === "overdue") list = list.filter((p) => p.overduePayments > 0);
-    if (filter === "pending") list = list.filter((p) => p.pendingPayments > 0);
-    if (filter === "vacant") list = list.filter((p) => p.activeTenants === 0);
-    return list;
-  }, [properties, search, filter]);
+    fetchProperties(1, search, filter);
+  }, [fetchProperties, search, filter]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -183,7 +176,7 @@ export default function PropertiesPage() {
         )}
 
         {/* Empty — no properties at all */}
-        {!loading && !error && properties.length === 0 && (
+        {!loading && !error && properties.length === 0 && !search.trim() && filter === "all" && (
           <div className="flex flex-col items-center justify-center min-h-[45vh] text-center">
             <div className="w-20 h-20 bg-blue-50 rounded-[20px] flex items-center justify-center mb-6 shadow-sm">
               <Building2 className="w-10 h-10 text-blue-400" />
@@ -208,8 +201,8 @@ export default function PropertiesPage() {
         {/* Empty — search/filter yields nothing */}
         {!loading &&
           !error &&
-          properties.length > 0 &&
-          filtered.length === 0 && (
+          properties.length === 0 &&
+          (search.trim() || filter !== "all") && (
             <div className="text-center py-16">
               <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <p className="text-sm font-semibold text-gray-700 mb-1">
@@ -222,10 +215,10 @@ export default function PropertiesPage() {
           )}
 
         {/* Property Cards grid */}
-        {!loading && !error && filtered.length > 0 && (
+        {!loading && !error && properties.length > 0 && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filtered.map((p) => (
+              {properties.map((p) => (
                 <PropertyCard key={p.id} {...p} />
               ))}
             </div>

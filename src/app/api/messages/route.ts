@@ -17,11 +17,11 @@ export async function GET(req: NextRequest) {
   }
 
   // Verify user is part of this conversation
-  const { data: conversation } = await supabase
+  const { data: conversation } = await (supabase
     .from("conversations")
     .select("landlord_id, tenant_id")
     .eq("id", conversationId)
-    .single()
+    .single() as any)
 
   if (!conversation || (conversation.landlord_id !== userData.id && conversation.tenant_id !== userData.id)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -55,17 +55,17 @@ export async function POST(req: NextRequest) {
   }
 
   // Verify user is part of this conversation
-  const { data: conversation } = await supabase
+  const { data: conversation } = await (supabase
     .from("conversations")
     .select("landlord_id, tenant_id")
     .eq("id", conversation_id)
-    .single()
+    .single() as any)
 
   if (!conversation || (conversation.landlord_id !== userData.id && conversation.tenant_id !== userData.id)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await ((supabase as any)
     .from("messages")
     .insert({
       conversation_id,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       content,
     })
     .select()
-    .single()
+    .single())
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

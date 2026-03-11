@@ -174,7 +174,7 @@ export async function GET() {
             next_due_date
           )
         `)
-        .eq("tenancies.units.properties.landlord_id", user.id)
+        .eq("tenancies.units.properties.landlord_id", user.id) as any
 
       let pendingPayments = 0
       let overduePayments = 0
