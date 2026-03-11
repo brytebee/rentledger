@@ -79,15 +79,21 @@ export const dashboardService = {
     landlordId: string,
   ): Promise<{ data: DashboardSummary | null; error: string | null }> {
     try {
-      const { count: propertiesCount } = await supabase
-        .from("properties")
-        .select("id", { count: "exact", head: true })
-        .eq("landlord_id", landlordId);
+      // 1. Fetch aggregate stats from the new optimized view
+      const { data: stats, error: statsError } = await supabase
+        .from("landlord_dashboard_stats")
+        .select("*")
+        .eq("landlord_id", landlordId)
+        .single();
 
+      if (statsError && statsError.code !== "PGRST116") { // Ignore if no data yet
+        return { data: null, error: statsError.message };
+      }
+
+      // 2. Fetch recent payments (still needed for the list component)
       const { data: payments, error: paymentsError } = await supabase
         .from("payments")
-        .select(
-          `
+        .select(`
           id,
           amount,
           status,
@@ -95,100 +101,40 @@ export const dashboardService = {
           tenancies!inner (
             id,
             next_due_date,
-            unit_id,
-            units!inner (
-              id,
-              name,
-              properties!inner (
-                id,
-                landlord_id
-              )
-            ),
-            profiles!inner (
-              id,
-              full_name
-            )
+            profiles!inner (full_name),
+            units!inner (name)
           )
-        `,
-        )
-        .eq("tenancies.units.properties.landlord_id", landlordId)
-        .order("payment_date", { ascending: false });
+        `)
+        .order("created_at", { ascending: false })
+        .limit(5);
 
       if (paymentsError) {
         return { data: null, error: paymentsError.message };
       }
 
-      const { data: unitsData } = (await supabase
-        .from("units")
-        .select("id, property_id")) as {
-        data: { id: string; property_id: string }[] | null;
-      };
-
-      const { data: propertiesData } = (await supabase
-        .from("properties")
-        .select("id")) as { data: { id: string }[] | null };
-
-      const propertyIds = propertiesData?.map((p) => p.id) ?? [];
-      const unitIds =
-        unitsData
-          ?.filter((u) => propertyIds.includes(u.property_id))
-          .map((u) => u.id) ?? [];
-
-      const { count: activeTenantsCount } = await supabase
-        .from("tenancies")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .in("unit_id", unitIds);
-
       const now = new Date();
+      const recentPayments: RecentPayment[] = (payments ?? []).map((p: any) => {
+        const dueDate = new Date(p.tenancies?.next_due_date ?? "");
+        const isOverdue = p.status !== "verified" && dueDate < now;
 
-      const recentPayments: RecentPayment[] = (
-        (payments ?? []) as unknown as PaymentWithRelations[]
-      )
-        .slice(0, 5)
-        .map((p) => {
-          const dueDate = new Date(p.tenancies?.next_due_date ?? "");
-          const isOverdue =
-            p.status !== "verified" && dueDate < now;
-
-          return {
-            id: p.id,
-            tenantName: p.tenancies?.profiles?.full_name ?? "Unknown Tenant",
-            tenantInitials: getInitials(
-              p.tenancies?.profiles?.full_name ?? "Unknown",
-            ),
-            unitLabel: p.tenancies?.units?.name ?? "Unit",
-            amount: p.amount ?? 0,
-            status: isOverdue
-              ? "overdue"
-              : p.status === "verified"
-                ? "paid"
-                : "pending",
-            date: p.payment_date || p.tenancies?.next_due_date,
-          };
-        });
-
-      const allPayments = recentPayments;
-
-      const totalRevenue = allPayments
-        .filter((p) => p.status === "paid")
-        .reduce((sum, p) => sum + p.amount, 0);
-
-      const pendingPayments = allPayments.filter(
-        (p) => p.status === "pending",
-      ).length;
-
-      const overduePayments = allPayments.filter(
-        (p) => p.status === "overdue",
-      ).length;
+        return {
+          id: p.id,
+          tenantName: p.tenancies?.profiles?.full_name ?? "Unknown Tenant",
+          tenantInitials: getInitials(p.tenancies?.profiles?.full_name ?? "Unknown"),
+          unitLabel: p.tenancies?.units?.name ?? "Unit",
+          amount: p.amount ?? 0,
+          status: isOverdue ? "overdue" : p.status === "verified" ? "paid" : "pending",
+          date: p.payment_date || p.tenancies?.next_due_date,
+        };
+      });
 
       const summary: DashboardSummary = {
-        totalRevenue,
-        revenueGrowth: 0,
-        pendingPayments,
-        overduePayments,
-        activeTenantsCount: activeTenantsCount ?? 0,
-        propertiesCount: propertiesCount ?? 0,
+        totalRevenue: stats?.total_revenue ?? 0,
+        revenueGrowth: 0, // Future feature
+        pendingPayments: stats?.pending_payments_count ?? 0,
+        overduePayments: stats?.overdue_tenants_count ?? 0,
+        activeTenantsCount: stats?.active_tenants ?? 0,
+        propertiesCount: stats?.total_properties ?? 0,
         recentPayments,
       };
 
