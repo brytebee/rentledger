@@ -13,6 +13,9 @@ import { AddTenantDialog } from "@/components/tenants/add-tenant-dialog";
 import { useSessionUser } from "@/components/auth/auth-context";
 import { getInitials, formatCurrency } from "@/lib/utils/format";
 import { Pagination } from "@/components/ui/pagination";
+import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface TenantItem {
   id: string;
@@ -22,12 +25,12 @@ interface TenantItem {
   phone: string | null;
   unitLabel: string;
   propertyName: string;
-  status: "active" | "inactive";
+  status: "pending" | "active" | "rejected" | "terminated";
   outstandingBalance: number;
   startDate: string;
 }
 
-interface Pagination {
+interface PaginationState {
   page: number;
   limit: number;
   total: number;
@@ -39,8 +42,16 @@ const statusCfg = {
     label: "Active",
     cls: "bg-green-100 text-green-700 border-green-200",
   },
-  inactive: {
-    label: "Inactive",
+  pending: {
+    label: "Pending",
+    cls: "bg-amber-100 text-amber-700 border-amber-200",
+  },
+  rejected: {
+    label: "Declined",
+    cls: "bg-red-100 text-red-700 border-red-200",
+  },
+  terminated: {
+    label: "Ended",
     cls: "bg-gray-100 text-gray-500 border-gray-200",
   },
 };
@@ -54,7 +65,7 @@ const avatarColors = [
 ];
 
 function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
-  const cfg = statusCfg[tenant.status] ?? statusCfg.inactive;
+  const cfg = statusCfg[tenant.status] ?? statusCfg.terminated;
   return (
     <Card className="group rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
       <CardContent className="p-4">
@@ -70,7 +81,10 @@ function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
                 {tenant.fullName}
               </p>
               <span
-                className={`text-[0.625rem] font-bold px-2 py-0.5 rounded-full border uppercase tracking-[0.05em] ${cfg.cls}`}
+                className={cn(
+                  "text-[0.625rem] font-bold px-2 py-0.5 rounded-full border uppercase tracking-[0.05em]",
+                  cfg.cls
+                )}
               >
                 {cfg.label}
               </span>
@@ -116,7 +130,7 @@ export default function TenantsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     limit: 10,
     total: 0,
@@ -143,6 +157,50 @@ export default function TenantsPage() {
   useEffect(() => {
     fetchTenants(1);
   }, [fetchTenants]);
+
+  // ── Realtime: update tenant status tags as soon as a tenant responds ──────
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel("tenancy-status-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "tenancies",
+        },
+        (payload) => {
+          const updated = payload.new as { id: string; status: string };
+          setTenants((prev) =>
+            prev.map((t) =>
+              t.tenancyId === updated.id
+                ? { ...t, status: updated.status as TenantItem["status"] }
+                : t,
+            ),
+          );
+
+          // Subtle toast to let the landlord know
+          const friendlyStatus: Record<string, string> = {
+            active: "accepted",
+            rejected: "declined",
+            terminated: "ended",
+          };
+          const label = friendlyStatus[updated.status];
+          if (label) {
+            toast.info(`A tenancy invitation was ${label}.`, {
+              description: "The tenant list has been updated.",
+            });
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -174,13 +232,24 @@ export default function TenantsPage() {
           subtitle={`${pagination.total} tenant${pagination.total !== 1 ? "s" : ""}`}
           user={headerUser}
           action={
-            <Button
-              onClick={() => setDialogOpen(true)}
-              className="h-10 px-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm gap-2 hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-px transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Add Tenant
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchTenants(pagination.page)}
+                className="h-10 rounded-xl px-3 border-gray-200 hover:bg-gray-50 text-gray-600"
+                title="Refresh list"
+              >
+                <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+              </Button>
+              <Button
+                onClick={() => setDialogOpen(true)}
+                className="h-10 px-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm gap-2 hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-px transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Tenant
+              </Button>
+            </div>
           }
         />
 
@@ -190,7 +259,7 @@ export default function TenantsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tenants, units, properties..."
+            placeholder="Search tenants, units, properties…"
             className="pl-9 h-11 rounded-xl border-gray-200 text-sm focus-visible:border-blue-500 bg-white"
           />
         </div>

@@ -25,6 +25,7 @@ export interface TenantPayment {
 
 export interface TenantTenancyItem {
   id: string
+  unitId: string
   status: "pending" | "active" | "rejected" | "terminated"
   startDate: string | null
   unitLabel: string

@@ -55,18 +55,34 @@ export function useMarkAsRead() {
   return useMutation({
     mutationFn: markAsRead,
     onMutate: async (notificationId) => {
+      // Cancel both queries
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
-      const previousNotifications = queryClient.getQueryData<Notification[]>(["notifications", false]);
 
+      // Keep track of old data for rollback
+      const previousFull = queryClient.getQueryData<Notification[]>(["notifications", false]);
+      const previousUnread = queryClient.getQueryData<Notification[]>(["notifications", true]);
+
+      // Optimistically update full list
       queryClient.setQueryData<Notification[]>(["notifications", false], (old) =>
         old?.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       );
 
-      return { previousNotifications };
+      // Optimistically update unread list (remove the item or mark as read)
+      queryClient.setQueryData<Notification[]>(["notifications", true], (old) =>
+        old?.filter((n) => n.id !== notificationId)
+      );
+
+      return { previousFull, previousUnread };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (_err, _id, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(["notifications", false], context.previousNotifications);
+      if (context?.previousFull) {
+        queryClient.setQueryData(["notifications", false], context.previousFull);
+      }
+      if (context?.previousUnread) {
+        queryClient.setQueryData(["notifications", true], context.previousUnread);
       }
     },
   });
@@ -79,17 +95,27 @@ export function useMarkAllAsRead() {
     mutationFn: markAllAsRead,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
-      const previousNotifications = queryClient.getQueryData<Notification[]>(["notifications", false]);
+      
+      const previousFull = queryClient.getQueryData<Notification[]>(["notifications", false]);
+      const previousUnread = queryClient.getQueryData<Notification[]>(["notifications", true]);
 
       queryClient.setQueryData<Notification[]>(["notifications", false], (old) =>
         old?.map((n) => ({ ...n, read: true }))
       );
 
-      return { previousNotifications };
+      queryClient.setQueryData<Notification[]>(["notifications", true], () => []);
+
+      return { previousFull, previousUnread };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (_err, _vars, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(["notifications", false], context.previousNotifications);
+      if (context?.previousFull) {
+        queryClient.setQueryData(["notifications", false], context.previousFull);
+      }
+      if (context?.previousUnread) {
+        queryClient.setQueryData(["notifications", true], context.previousUnread);
       }
     },
   });
@@ -103,8 +129,11 @@ export function useRespondToInvitation() {
       respondToInvitation(notificationId, action, tenancyId),
     onMutate: async ({ notificationId, action }) => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
-      const previousNotifications = queryClient.getQueryData<Notification[]>(["notifications", false]);
+      
+      const previousFull = queryClient.getQueryData<Notification[]>(["notifications", false]);
+      const previousUnread = queryClient.getQueryData<Notification[]>(["notifications", true]);
 
+      // Update full list
       queryClient.setQueryData<Notification[]>(["notifications", false], (old) =>
         old?.map((n) =>
           n.id === notificationId
@@ -117,11 +146,22 @@ export function useRespondToInvitation() {
         )
       );
 
-      return { previousNotifications };
+      // Update unread list (remove the item)
+      queryClient.setQueryData<Notification[]>(["notifications", true], (old) =>
+        old?.filter((n) => n.id !== notificationId)
+      );
+
+      return { previousFull, previousUnread };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (_err, _vars, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(["notifications", false], context.previousNotifications);
+      if (context?.previousFull) {
+        queryClient.setQueryData(["notifications", false], context.previousFull);
+      }
+      if (context?.previousUnread) {
+        queryClient.setQueryData(["notifications", true], context.previousUnread);
       }
     },
   });

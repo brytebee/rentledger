@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/request";
+import { normalizePhoneNumber } from "@/lib/utils/phone";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +28,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedPhone = normalizePhoneNumber(phone);
+    console.log("[signup] raw phone:", phone);
+    console.log("[signup] normalized phone:", normalizedPhone);
+
     const { supabase } = createServerClient(req);
 
     const { data, error } = await supabase.auth.signUp({
@@ -35,7 +40,8 @@ export async function POST(req: NextRequest) {
       options: {
         data: {
           full_name: fullName,
-          phone_number: phone,
+          phone_number: normalizedPhone,
+          phone: normalizedPhone, // Add this too
           role: role || "tenant",
         },
         emailRedirectTo: `${req.nextUrl.origin}/auth/callback`,
@@ -59,6 +65,7 @@ export async function POST(req: NextRequest) {
         id: data.user.id,
         email: data.user.email,
         full_name: fullName,
+        phone: normalizedPhone,
         role: role || "tenant",
       },
     });

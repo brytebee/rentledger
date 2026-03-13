@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Loader2, CreditCard } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,8 @@ import {
   MiniPaymentListSkeleton,
 } from "@/components/tenant/mini-payment-list";
 import { PaymentDialog } from "@/components/tenant/payment-dialog";
+import { useSessionUser } from "@/components/auth/auth-context";
+import { createClient } from "@/lib/supabase/client";
 import type { TenantDashboardResponse, TenantTenancyItem } from "@/types/tenant";
 import { toast } from "sonner";
 
@@ -167,8 +171,12 @@ function TenancyAcceptDialog({
 }
 
 export function TenantDashboard() {
+  const user = useSessionUser();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [data, setData] = useState<TenantDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paystackLoading, setPaystackLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dlgOpen, setDlgOpen] = useState(false);
   const [acceptDlgOpen, setAcceptDlgOpen] = useState(false);
@@ -178,13 +186,8 @@ export function TenantDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const token =
-        typeof window !== "undefined"
-          ? sessionStorage.getItem("rl_access_token")
-          : null;
       const { data: res } = await axios.get<TenantDashboardResponse>(
-        "/api/tenant/dashboard",
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+        "/api/tenant/dashboard"
       );
       setData(res);
 
@@ -194,7 +197,10 @@ export function TenantDashboard() {
         (res.rentInfo.currentPaymentStatus === "pending" ||
           res.rentInfo.currentPaymentStatus === "overdue")
       ) {
-        setTimeout(() => setDlgOpen(true), 800);
+        // Only auto-open if not returning from Paystack
+        if (!searchParams.get("reference")) {
+          setTimeout(() => setDlgOpen(true), 800);
+        }
       }
     } catch (e) {
       const ae = e as AxiosError<{ error: string }>;
@@ -202,11 +208,84 @@ export function TenantDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    const verifyPayment = async (reference: string) => {
+      setPaystackLoading(true);
+      try {
+        const { data: verifyRes } = await axios.get(`/api/payments/verify?reference=${reference}`);
+        if (verifyRes.success) {
+          toast.success("Payment verified successfully!");
+          // Clean up URL
+          const newPath = window.location.pathname;
+          window.history.replaceState({}, "", newPath);
+          fetchData();
+        } else {
+          toast.error(verifyRes.message || "Payment verification failed");
+        }
+      } catch (err: any) {
+        toast.error(err.response?.data?.error || "Verification failed");
+      } finally {
+        setPaystackLoading(false);
+      }
+    };
+
+    const reference = searchParams.get("reference");
+    if (reference) {
+      verifyPayment(reference);
+    } else {
+      fetchData();
+    }
+  }, [fetchData, searchParams]);
+
+  // Realtime: if tenancy status changes on any device/tab, reload dashboard data
+  useEffect(() => {
+    if (!user?.id) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel("tenant-dashboard-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "tenancies",
+          filter: `tenant_id=eq.${user.id}`,
+        },
+        () => {
+          // Status changed — reload so everything is consistent
+          fetchData();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchData]);
+
+  const handlePaystackPayment = async () => {
+    if (!data?.rentInfo) return;
+    setPaystackLoading(true);
+    try {
+      const { data: initRes } = await axios.post("/api/payments/initialize", {
+        amount: data.rentInfo.rentAmount,
+        email: user.email,
+        tenancyId: data.rentInfo.tenancyId
+      });
+
+      if (initRes.data?.authorization_url) {
+        window.location.href = initRes.data.authorization_url;
+      } else {
+        toast.error("Failed to get payment URL");
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Payment initialization failed");
+    } finally {
+      setPaystackLoading(false);
+    }
+  };
 
   const handleTenancyClick = (tenancy: TenantTenancyItem) => {
     setSelectedTenancy(tenancy);
@@ -264,14 +343,31 @@ export function TenantDashboard() {
         <>
           <RentDueCard rentInfo={rentInfo} />
 
-          {rentInfo.currentPaymentStatus !== "paid" && (
-            <Button
-              onClick={() => setDlgOpen(true)}
-              className="w-full h-12 rounded-[10px] bg-blue-500 hover:bg-blue-600 font-semibold"
-            >
-              Submit Payment Proof
-            </Button>
-          )}
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            {rentInfo.currentPaymentStatus !== "paid" && (
+              <>
+                <Button
+                  onClick={handlePaystackPayment}
+                  disabled={paystackLoading}
+                  className="flex-1 h-12 rounded-[10px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+                >
+                  {paystackLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <CreditCard className="w-5 h-5" />
+                  )}
+                  Pay with Paystack
+                </Button>
+                <Button
+                  onClick={() => setDlgOpen(true)}
+                  variant="outline"
+                  className="flex-1 h-12 rounded-[10px] border-gray-200 hover:bg-gray-50 text-gray-700 font-bold"
+                >
+                  Manual Proof
+                </Button>
+              </>
+            )}
+          </div>
 
           <MiniPaymentList payments={recentPayments} />
 

@@ -56,3 +56,13 @@ BEGIN
           );
     END IF;
 END $$;
+
+-- 4. Unified Profile Search: Allow authenticated users to search by phone
+-- This ensures landlords can find tenants who have registered but aren't yet linked.
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Authenticated users can search by phone') THEN
+        CREATE POLICY "Authenticated users can search by phone" ON public.profiles 
+          FOR SELECT TO authenticated USING (true);
+    END IF;
+END $$;

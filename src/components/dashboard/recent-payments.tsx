@@ -25,6 +25,12 @@ interface RecentPaymentsProps {
   loading?: boolean;
 }
 
+const statusStyles = {
+  paid: "bg-green-100 text-green-700",
+  pending: "bg-amber-100 text-amber-700",
+  overdue: "bg-red-100 text-red-700",
+};
+
 export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
   if (loading) {
     return (
@@ -67,12 +73,6 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
     );
   }
 
-  const statusStyles = {
-    paid: "bg-green-100 text-green-700",
-    pending: "bg-amber-100 text-amber-700",
-    overdue: "bg-red-100 text-red-700",
-  };
-
   return (
     <Card className="rounded-2xl">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
@@ -112,7 +112,7 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
               <Badge
                 className={cn(
                   "text-[10px] font-semibold px-2 py-0.5 rounded-full border-0",
-                  statusStyles[payment.status],
+                  statusStyles[payment.status as keyof typeof statusStyles] || statusStyles.pending,
                 )}
               >
                 {payment.status}

@@ -9,6 +9,7 @@ import {
   CreditCard,
   History,
   User,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,12 +18,14 @@ const landlordNav = [
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/tenants", label: "Tenants", icon: Users },
   { href: "/payments", label: "Payments", icon: CreditCard },
+  { href: "/maintenance", label: "Maint.", icon: Wrench },
   { href: "/account", label: "Account", icon: User },
 ];
 
 const tenantNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/history", label: "History", icon: History },
+  { href: "/maintenance", label: "Maint.", icon: Wrench },
   { href: "/account", label: "Account", icon: User },
 ];
 

@@ -25,7 +25,7 @@ export const authService = {
     role: UserRole = "tenant",
   ): Promise<AuthResult<AuthUser>> {
     try {
-      const { data, status } = await axios.post<AuthUser | { error: string }>(
+      const { data, status } = await axios.post<{ user: AuthUser } | { error: string }>(
         `${API_BASE}/signup`,
         { email, password, fullName, phone, role },
       );
@@ -35,7 +35,7 @@ export const authService = {
       }
 
       if (status === 200 || status === 201) {
-        return { data: data as AuthUser, error: null };
+        return { data: data.user, error: null };
       }
 
       console.error("Signup error:", data, status);

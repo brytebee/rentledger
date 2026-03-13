@@ -51,6 +51,7 @@ export function AddTenantDialog({
   const [propertyId, setPropertyId] = useState(preSelectedPropertyId || "");
   const [unitId, setUnitId] = useState(preSelectedUnitId || "");
   const [startDate, setStartDate] = useState("");
+  const [rentCycle, setRentCycle] = useState<"monthly" | "annual">("annual");
   const [properties, setProperties] = useState<Property[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(false);
@@ -101,13 +102,18 @@ export function AddTenantDialog({
   async function validatePhone() {
     if (!phone.trim()) return;
     setValidating(true);
+    setError(null);
     try {
       const res = await axios.get(
         `/api/tenants/validate?phone=${encodeURIComponent(phone.trim())}`,
       );
       setPhoneValidated(res.data.valid ? "valid" : "invalid");
-    } catch {
+      if (res.data.error) {
+        setError(res.data.error);
+      }
+    } catch (err: any) {
       setPhoneValidated("idle");
+      setError(err.response?.data?.error ?? "Could not validate phone number.");
     } finally {
       setValidating(false);
     }
@@ -118,6 +124,7 @@ export function AddTenantDialog({
     setPropertyId("");
     setUnitId("");
     setStartDate("");
+    setRentCycle("annual");
     setError(null);
     setSuccess(null);
     setErrors({});
@@ -146,6 +153,7 @@ export function AddTenantDialog({
         phone: phone.trim(),
         unitId,
         startDate: startDate || new Date().toISOString(),
+        rentCycle,
       });
       setSuccess("Invitation sent successfully!");
       setTimeout(() => {
@@ -186,7 +194,7 @@ export function AddTenantDialog({
               Invite Tenant
             </DialogTitle>
             <DialogDescription className="text-sm text-gray-500 mt-1">
-              Invite a tenant by their phone number.
+              Invite a tenant by their phone number. They must have an account on RentLedger first.
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -338,7 +346,7 @@ export function AddTenantDialog({
             )}
             {phoneValidated === "invalid" && (
               <p className="text-xs text-red-500 font-medium">
-                User not found. They need to register first.
+                User not found. They need to register first. You can share the registration link with them.
               </p>
             )}
             {errors.phone && (
@@ -346,18 +354,37 @@ export function AddTenantDialog({
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-semibold text-gray-700">
-              Start Date{" "}
-              <span className="text-gray-400 font-normal">(optional)</span>
-            </Label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              disabled={loading}
-              className="h-11 rounded-xl text-sm border-gray-200 focus-visible:border-green-500"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-gray-700">
+                Rent Cycle
+              </Label>
+              <Select
+                value={rentCycle}
+                onValueChange={(v) => setRentCycle(v as "monthly" | "annual")}
+              >
+                <SelectTrigger className="h-11 w-full rounded-xl text-sm border-gray-200">
+                  <SelectValue placeholder="Select cycle" />
+                </SelectTrigger>
+                <SelectContent className="rounded-[10px]">
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="annual">Annual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-gray-700">
+                Start Date{" "}
+                <span className="text-gray-400 font-normal">(optional)</span>
+              </Label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                disabled={loading}
+                className="h-11 rounded-xl text-sm border-gray-200 focus-visible:border-green-500"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-1">

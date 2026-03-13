@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   Building2,
   Users,
+  Wrench,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,6 +31,13 @@ interface StatCardProps {
   formatAsCurrency?: boolean;
 }
 
+const accentBorderMap = {
+  blue: "border-t-blue-500",
+  amber: "border-t-amber-400",
+  red: "border-t-red-500",
+  green: "border-t-green-500",
+};
+
 function StatCard({
   title,
   value,
@@ -39,12 +47,7 @@ function StatCard({
   accent = "blue",
   formatAsCurrency = true,
 }: StatCardProps) {
-  const accentBorder = {
-    blue: "border-t-blue-500",
-    amber: "border-t-amber-400",
-    red: "border-t-red-500",
-    green: "border-t-green-500",
-  }[accent];
+  const accentBorder = accentBorderMap[accent];
 
   return (
     <Card
@@ -147,6 +150,14 @@ export function SummaryCards({ summary, loading }: SummaryCardsProps) {
         icon={<Users className="w-5 h-5 text-green-600" />}
         iconBg="bg-green-50"
         accent="green"
+        formatAsCurrency={false}
+      />
+      <StatCard
+        title="Maintenance"
+        value={summary.openMaintenanceCount}
+        icon={<Wrench className="w-5 h-5 text-indigo-500" />}
+        iconBg="bg-indigo-50"
+        accent="blue"
         formatAsCurrency={false}
       />
     </div>

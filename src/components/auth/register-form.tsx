@@ -124,11 +124,12 @@ export function RegisterForm() {
 
       if (result.data) {
         setRegisteredEmail(values.email.trim());
-        setSuccess(true);
 
         toast.success("Account created!", {
           description: `Welcome to RentLedger, ${result.data.full_name.split(" ")[0] || ""}!`,
         });
+
+        setSuccess(true);
       }
     } catch {
       setServerError("Something went wrong. Please try again.");
@@ -140,7 +141,7 @@ export function RegisterForm() {
   const reSignUp = async () => {
     if (registeredEmail) {
       setLoading(true);
-      await authService.signUp(
+      const result = await authService.signUp(
         registeredEmail,
         values.password,
         values.fullName.trim(),
@@ -148,7 +149,14 @@ export function RegisterForm() {
         role,
       );
       setLoading(false);
-      toast.success("Confirmation email resent!");
+
+      if (result.error) {
+        toast.error("Could not resend email", {
+          description: result.error,
+        });
+      } else {
+        toast.success("Confirmation email resent!");
+      }
     }
   };
 
@@ -270,7 +278,7 @@ export function RegisterForm() {
         </p>
       </form>
 
-      <Dialog open={success} onOpenChange={() => {}}>
+      <Dialog open={success} onOpenChange={setSuccess}>
         <DialogContent className="sm:max-w-105 p-0 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
           <DialogHeader className="pb-0">
             <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

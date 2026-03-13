@@ -15,13 +15,15 @@ Offload dashboard calculations from the client/service layer to PostgreSQL.
 - **Implemented**: Created `landlord_dashboard_stats` and `tenant_dashboard_stats` views.
 - **Efficiency**: Reduced dashboard database calls and offloaded complex overdue logic to the DB engine.
 
-### 3. Smart Pagination
-Prevent UI lag by implementing cursor-based pagination for:
-- Property and unit lists.
-- Detailed payment history tables.
+### 3. Smart Pagination [COMPLETED] ✅
+Prevent UI lag by implementing native database-level pagination.
+- **Implemented**: Created `property_list_view` and `payment_list_view` with `effective_status` logic.
+- **Frontend**: Standard pagination implemented for Properties and Payments lists with server-side filtering.
 
-### 4. Optimized Re-renders
+### 4. Optimized Re-renders [COMPLETED] ✅
 Audit dashboard components to ensure the React Compiler (Next.js 15 feature) is effectively memoizing expensive UI chunks.
+- **Implemented**: Enabled `eslint-plugin-react-compiler` for ongoing optimization alerts.
+- **Fixed**: Refactored `RecentPayments` and `SummaryCards` for better stability and memoization.
 
 ---
 

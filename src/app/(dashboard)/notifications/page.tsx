@@ -1,361 +1,251 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Bell, Loader2, Check, X, RefreshCw } from "lucide-react";
+import { Bell, Loader2, Check, X, RefreshCw, CheckCircle2, XCircle, Info, CreditCard, UserPlus, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { TopBar } from "@/components/dashboard/top-bar";
 import { useSessionUser } from "@/components/auth/auth-context";
+import { useNotifications, useMarkAsRead, useMarkAllAsRead, useRespondToInvitation } from "@/hooks";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-const NOTIFICATION_REFRESH_KEY = "rl_notification_refresh_interval";
-const DEFAULT_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+function getIcon(type: string) {
+  switch (type) {
+    case "payment":  return <CreditCard className="w-4 h-4 text-blue-500" />;
+    case "message":  return <MessageSquare className="w-4 h-4 text-green-500" />;
+    case "tenancy":  return <UserPlus className="w-4 h-4 text-purple-500" />;
+    default:         return <Info className="w-4 h-4 text-gray-400" />;
+  }
+}
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string | null;
-  type: string;
-  read: boolean;
-  created_at: string | null;
-  data: { tenancy_id?: string } | null;
+function formatTime(dateStr: string | null) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const now  = new Date();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours   = Math.floor(diff / 3600000);
+  const days    = Math.floor(diff / 86400000);
+  if (minutes < 1)  return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours   < 24) return `${hours}h ago`;
+  if (days    <  7) return `${days}d ago`;
+  return date.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export default function NotificationsPage() {
-  const user = useSessionUser();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router  = useRouter();
+  const user    = useSessionUser();
+
+  // All data via React Query — same cache as the notification bell
+  const { data: notifications = [], isLoading, refetch } = useNotifications(false);
+  const markAsRead       = useMarkAsRead();
+  const markAllAsRead    = useMarkAllAsRead();
+  const respondToInvite  = useRespondToInvitation();
+
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(
-    DEFAULT_REFRESH_INTERVAL,
-  );
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(NOTIFICATION_REFRESH_KEY);
-    if (stored) {
-      const interval = parseInt(stored, 10);
-      if (!isNaN(interval) && interval >= 60000) {
-        setRefreshInterval(interval);
-      }
-    }
-  }, []);
+  const headerUser = { name: user.name, email: user.email, role: user.role };
 
-  const fetchNotifications = useCallback(async () => {
+  // ── helpers ────────────────────────────────────────────────────────────────
+
+  const isTenancyInvite = (n: typeof notifications[number]) =>
+    n.type === "tenancy" && !!n.data?.tenancy_id;
+
+  const isActioned = (n: typeof notifications[number]) =>
+    n.title.includes("Accepted") || n.title.includes("Declined");
+
+  const handleMarkAllRead = async () => {
     try {
-      const { data } = await axios.get<{ notifications: Notification[] }>(
-        "/api/notifications",
-      );
-      setNotifications(data.notifications ?? []);
-      setLastRefresh(new Date());
-    } catch {
-      toast.error("Failed to load notifications");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
-
-  useEffect(() => {
-    if (refreshInterval < 60000) return;
-
-    const intervalId = setInterval(() => {
-      fetchNotifications();
-    }, refreshInterval);
-
-    return () => clearInterval(intervalId);
-  }, [refreshInterval, fetchNotifications]);
-
-  const handleRefreshIntervalChange = (minutes: number) => {
-    const interval = minutes * 60 * 1000;
-    setRefreshInterval(interval);
-    localStorage.setItem(NOTIFICATION_REFRESH_KEY, String(interval));
-    toast.success(
-      `Notifications will refresh every ${minutes} minute${minutes > 1 ? "s" : ""}`,
-    );
-  };
-
-  const handleAction = async (
-    notificationId: string,
-    action: "accept" | "reject",
-    tenancyId: string,
-  ) => {
-    setActionLoading(notificationId);
-    try {
-      await axios.patch("/api/notifications", {
-        notification_id: notificationId,
-        action,
-        tenancy_id: tenancyId,
-      });
-
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === notificationId
-            ? {
-                ...n,
-                read: true,
-                title:
-                  action === "accept" ? "Tenancy Accepted" : "Tenancy Declined",
-              }
-            : n,
-        ),
-      );
-      toast.success(
-        action === "accept" ? "Tenancy accepted!" : "Tenancy declined",
-      );
-    } catch {
-      toast.error("Failed to process action");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const markAsRead = async (id: string) => {
-    try {
-      await axios.patch("/api/notifications", { notification_id: id });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-      );
-    } catch {
-      toast.error("Failed to mark as read");
-    }
-  };
-
-  const markAllRead = async () => {
-    try {
-      await axios.patch("/api/notifications", { mark_all_read: true });
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      await markAllAsRead.mutateAsync();
       toast.success("All notifications marked as read");
     } catch {
       toast.error("Failed to mark all as read");
     }
   };
 
-  const formatTime = (dateStr: string | null) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
+  const handleMarkRead = async (id: string) => {
+    try {
+      await markAsRead.mutateAsync(id);
+    } catch {
+      toast.error("Failed to mark as read");
+    }
   };
 
-  const isTenancyInvite = (notification: Notification) => {
-    return notification.type === "tenancy" && notification.data?.tenancy_id;
-  };
+  const handleAction = useCallback(async (
+    notificationId: string,
+    action: "accept" | "reject",
+    tenancyId: string,
+  ) => {
+    setActionLoading(notificationId);
+    try {
+      await respondToInvite.mutateAsync({ notificationId, action, tenancyId });
+      toast.success(action === "accept" ? "Tenancy accepted! Redirecting to dashboard…" : "Invitation declined");
 
-  const headerUser = { name: user.name, email: user.email, role: user.role };
+      // Give the toast time to show, then navigate so the dashboard reloads with fresh data.
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1200);
+    } catch {
+      toast.error("Failed to process action. Please try again.");
+    } finally {
+      setActionLoading(null);
+    }
+  }, [respondToInvite, router]);
+
+  // ── render ─────────────────────────────────────────────────────────────────
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <>
       <TopBar title="Notifications" user={headerUser} />
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto w-full">
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-            {lastRefresh && (
-              <p className="text-xs text-gray-400 mt-1">
-                Last updated: {lastRefresh.toLocaleTimeString()}
-              </p>
-            )}
+            <p className="text-sm text-gray-400 mt-0.5">
+              {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+            </p>
           </div>
           <div className="flex items-center gap-2">
-            <Select
-              value={String(refreshInterval / 60000)}
-              onValueChange={(v) =>
-                handleRefreshIntervalChange(parseInt(v, 10))
-              }
-            >
-              <SelectTrigger className="w-35 h-9 rounded-xl text-xs">
-                <SelectValue placeholder="Refresh interval" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Every 1 min</SelectItem>
-                <SelectItem value="5">Every 5 min</SelectItem>
-                <SelectItem value="10">Every 10 min</SelectItem>
-                <SelectItem value="15">Every 15 min</SelectItem>
-                <SelectItem value="30">Every 30 min</SelectItem>
-                <SelectItem value="0">Manual only</SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                setLoading(true);
-                fetchNotifications();
-              }}
-              className="rounded-xl h-9"
+              onClick={() => refetch()}
+              className="rounded-xl h-9 border-gray-200 hover:bg-gray-50"
+              title="Refresh"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className={cn("w-4 h-4 text-gray-500", isLoading && "animate-spin")} />
             </Button>
-            {notifications.some((n) => !n.read) && (
+            {unreadCount > 0 && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={markAllRead}
-                className="rounded-xl"
+                onClick={handleMarkAllRead}
+                className="rounded-xl h-9 border-gray-200 text-sm text-gray-600"
               >
-                Mark all as read
+                Mark all read
               </Button>
             )}
           </div>
         </div>
-        {/*<div className="flex items-center gap-2">
-            <Select
-              value={String(refreshInterval / 60000)}
-              onValueChange={(v) => handleRefreshIntervalChange(parseInt(v, 10))}
-            >
-              <SelectTrigger className="w-[140px] h-9 rounded-xl text-xs">
-                <SelectValue placeholder="Refresh interval" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Every 1 min</SelectItem>
-                <SelectItem value="5">Every 5 min</SelectItem>
-                <SelectItem value="10">Every 10 min</SelectItem>
-                <SelectItem value="15">Every 15 min</SelectItem>
-                <SelectItem value="30">Every 30 min</SelectItem>
-                <SelectItem value="0">Manual only</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setLoading(true);
-                fetchNotifications();
-              }}
-              className="rounded-xl h-9"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-            {notifications.some((n) => !n.read) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markAllRead}
-                className="rounded-xl"
-              >
-                Mark all as read
-              </Button>
-            )}
-          </div>*/}
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        {/* Content */}
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-300" />
           </div>
         ) : notifications.length === 0 ? (
-          <Card className="rounded-3xl border border-gray-200">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Bell className="w-12 h-12 text-gray-300 mb-4" />
-              <p className="text-gray-500">No notifications yet</p>
+          <Card className="rounded-3xl border-dashed border-gray-200">
+            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+              <Bell className="w-12 h-12 text-gray-200 mb-4" />
+              <p className="text-sm font-semibold text-gray-500">No notifications yet</p>
+              <p className="text-xs text-gray-400 mt-1">You're all caught up!</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
-            {notifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={`rounded-3xl border ${
-                  !notification.read
-                    ? "border-blue-200 bg-blue-50/50"
-                    : "border-gray-200"
-                }`}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-base font-semibold">
-                      {notification.title}
-                    </CardTitle>
-                    {!notification.read && (
-                      <span className="w-2 h-2 rounded-full bg-blue-500" />
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  {notification.message && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      {notification.message}
-                    </p>
+          <div className="space-y-2">
+            {notifications.map((n) => {
+              const isInvite   = isTenancyInvite(n);
+              const actioned   = isActioned(n);
+              const isBusy     = actionLoading === n.id;
+              const accepted   = n.title.includes("Accepted");
+              const declined   = n.title.includes("Declined");
+
+              return (
+                <div
+                  key={n.id}
+                  className={cn(
+                    "flex items-start gap-3 rounded-2xl border p-4 transition-all duration-150",
+                    !n.read
+                      ? "border-blue-200 bg-blue-50/40"
+                      : "border-gray-200 bg-white",
+                    !n.read && !isInvite && "cursor-pointer hover:bg-blue-50/70"
                   )}
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-400">
-                      {formatTime(notification.created_at)}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {isTenancyInvite(notification) && !notification.read && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              handleAction(
-                                notification.id,
-                                "accept",
-                                notification.data!.tenancy_id!,
-                              )
-                            }
-                            disabled={actionLoading === notification.id}
-                            className="h-7 text-xs bg-green-500 hover:bg-green-600 gap-1"
-                          >
-                            {actionLoading === notification.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <Check className="w-3 h-3" />
-                            )}
-                            Accept
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleAction(
-                                notification.id,
-                                "reject",
-                                notification.data!.tenancy_id!,
-                              )
-                            }
-                            disabled={actionLoading === notification.id}
-                            className="h-7 text-xs gap-1"
-                          >
-                            {actionLoading === notification.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <X className="w-3 h-3" />
-                            )}
-                            Decline
-                          </Button>
-                        </>
+                  onClick={() => {
+                    if (!n.read && !isInvite) handleMarkRead(n.id);
+                  }}
+                >
+                  {/* Icon */}
+                  <div className="mt-0.5 shrink-0">
+                    {actioned ? (
+                      accepted
+                        ? <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        : <XCircle className="w-4 h-4 text-red-400" />
+                    ) : getIcon(n.type)}
+                  </div>
+
+                  {/* Body */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">{n.title}</p>
+                        {n.message && (
+                          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{n.message}</p>
+                        )}
+                        <p className="text-[10px] text-gray-400 mt-1.5">{formatTime(n.created_at)}</p>
+                      </div>
+
+                      {/* Status / Unread dot */}
+                      {!n.read && !isInvite && (
+                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0" />
                       )}
-                      {!notification.read && !isTenancyInvite(notification) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => markAsRead(notification.id)}
-                          className="h-7 text-xs"
+
+                      {actioned && (
+                        <Badge
+                          className={cn(
+                            "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                            accepted
+                              ? "bg-green-100 text-green-700 border border-green-200"
+                              : "bg-gray-100 text-gray-500 border border-gray-200"
+                          )}
                         >
-                          Mark as read
-                        </Button>
+                          {accepted ? "Accepted" : "Declined"}
+                        </Badge>
                       )}
                     </div>
+
+                    {/* Accept / Decline actions */}
+                    {isInvite && !actioned && (
+                      <div className="flex items-center gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAction(n.id, "accept", n.data!.tenancy_id!);
+                          }}
+                          disabled={isBusy}
+                          className="h-8 px-4 rounded-xl text-xs font-semibold bg-green-500 hover:bg-green-600 gap-1.5 shadow-sm shadow-green-100"
+                        >
+                          {isBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                          Accept
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAction(n.id, "reject", n.data!.tenancy_id!);
+                          }}
+                          disabled={isBusy}
+                          className="h-8 px-4 rounded-xl text-xs font-semibold border-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-600 gap-1.5"
+                        >
+                          {isBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+                          Decline
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

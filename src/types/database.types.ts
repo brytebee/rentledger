@@ -130,6 +130,60 @@ export type Database = {
           },
         ]
       }
+      maintenance_requests: {
+        Row: {
+          id: string
+          tenant_id: string
+          unit_id: string
+          title: string
+          description: string
+          status: Database["public"]["Enums"]["maintenance_status"]
+          priority: Database["public"]["Enums"]["maintenance_priority"]
+          images: string[] | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          unit_id: string
+          title: string
+          description: string
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          priority?: Database["public"]["Enums"]["maintenance_priority"]
+          images?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          unit_id?: string
+          title?: string
+          description?: string
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          priority?: Database["public"]["Enums"]["maintenance_priority"]
+          images?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_requests_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -354,6 +408,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      maintenance_priority: "low" | "medium" | "high" | "urgent"
+      maintenance_status: "open" | "in_progress" | "resolved" | "rejected"
       payment_status: "pending" | "verified" | "failed" | "rejected"
       rent_cycle_type: "annual" | "monthly"
       tenancy_status: "pending" | "active" | "rejected" | "terminated"
@@ -485,6 +541,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      maintenance_priority: ["low", "medium", "high", "urgent"],
+      maintenance_status: ["open", "in_progress", "resolved", "rejected"],
       payment_status: ["pending", "verified", "failed", "rejected"],
       rent_cycle_type: ["annual", "monthly"],
       tenancy_status: ["pending", "active", "rejected", "terminated"],

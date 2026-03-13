@@ -189,6 +189,13 @@ export async function GET() {
           pendingPayments++
         }
       }
+      
+      // Get maintenance requests count
+      const { count: openMaintenanceCount } = await supabase
+        .from("maintenance_requests")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"])
+        .in("unit_id", unitIds)
 
       return NextResponse.json({
         role,
@@ -199,6 +206,7 @@ export async function GET() {
           overduePayments,
           activeTenantsCount: activeTenantsCount ?? 0,
           propertiesCount: propertiesCount ?? 0,
+          openMaintenanceCount: openMaintenanceCount ?? 0,
           recentPayments,
         },
       })

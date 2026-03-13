@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Bell,
   HelpCircle,
+  Wrench,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -59,6 +60,11 @@ const landlordNav: NavItem[] = [
     icon: <CreditCard className="w-4.5 h-4.5" />,
   },
   {
+    href: "/maintenance",
+    label: "Maintenance",
+    icon: <Wrench className="w-4.5 h-4.5" />,
+  },
+  {
     href: "/account",
     label: "Account",
     icon: <User className="w-4.5 h-4.5" />,
@@ -75,6 +81,11 @@ const tenantNav: NavItem[] = [
     href: "/history",
     label: "History",
     icon: <CreditCard className="w-4.5 h-4.5" />,
+  },
+  {
+    href: "/maintenance",
+    label: "Maintenance",
+    icon: <Wrench className="w-4.5 h-4.5" />,
   },
   {
     href: "/account",

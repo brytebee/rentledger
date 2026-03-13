@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { createNotification } from "@/lib/notifications";
+import { normalizePhoneNumber } from "@/lib/utils/phone";
 
 async function getUserId(
   supabase: Awaited<ReturnType<typeof createServerClient>>,
@@ -142,6 +143,8 @@ export async function POST(req: NextRequest) {
       { error: "Tenant phone is required." },
       { status: 400 },
     );
+  
+  const normalizedPhone = normalizePhoneNumber(phone);
   if (!unitId)
     return NextResponse.json(
       { error: "Please select a unit." },
@@ -180,10 +183,11 @@ export async function POST(req: NextRequest) {
   const { data: tenantProfile } = await supabase
     .from("profiles")
     .select("id, full_name")
-    .eq("phone_number", phone.trim())
+    .eq("phone_number", normalizedPhone)
     .single();
 
   if (!tenantProfile) {
+    console.log("[POST /api/tenants] No profile found for", normalizedPhone);
     return NextResponse.json(
       {
         error: "User not found. They must register on the app first.",
@@ -192,6 +196,8 @@ export async function POST(req: NextRequest) {
       { status: 404 },
     );
   }
+
+  console.log("[POST /api/tenants] Found tenant profile:", tenantProfile.id);
 
   // Create pending tenancy
   const { data: tenancy, error: tenancyError } = await supabase
@@ -206,17 +212,23 @@ export async function POST(req: NextRequest) {
     .select("id")
     .single();
 
-  if (tenancyError)
+  if (tenancyError) {
+    console.error("[POST /api/tenants] Tenancy creation error:", tenancyError);
     return NextResponse.json({ error: tenancyError.message }, { status: 500 });
+  }
+
+  console.log("[POST /api/tenants] Tenancy created:", tenancy.id, ". Sending notification...");
 
   // Send notification to tenant
   await createNotification({
     userId: tenantProfile.id,
     title: "Tenancy Invitation",
-    message: `You have been invited to Unit ${unit.name} at ${unit.properties.name}. Please accept or decline.`,
+    message: `You have been invited to Unit ${unit.name} at ${unit.properties.name}. Click here or visit your Notifications page to accept.`,
     type: "tenancy",
     data: { tenancy_id: tenancy.id },
   });
+
+  console.log("[POST /api/tenants] invitation flow completed for", normalizedPhone);
 
   return NextResponse.json(
     {

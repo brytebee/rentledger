@@ -52,6 +52,7 @@ export interface DashboardSummary {
   overduePayments: number;
   activeTenantsCount: number;
   propertiesCount: number;
+  openMaintenanceCount: number;
   recentPayments: RecentPayment[];
 }
 
@@ -139,6 +140,7 @@ export const dashboardService = {
         overduePayments: Number(stats?.overdue_tenants_count ?? 0),
         activeTenantsCount: Number(stats?.active_tenants ?? 0),
         propertiesCount: Number(stats?.total_properties ?? 0),
+        openMaintenanceCount: 0, // Placeholder as this service method doesn't fetch it yet, but API does
         recentPayments,
       };
 

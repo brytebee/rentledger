@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, CreditCard, MessageSquare, Info } from "lucide-react";
+import { Bell, CreditCard, MessageSquare, Info, UserPlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,19 +12,50 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
 
 export function NotificationBell() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [mounted, setMounted] = useState(false);
   const { data: notifications = [], isLoading } = useNotifications(true);
   const markAsRead = useMarkAsRead();
   const markAllRead = useMarkAllAsRead();
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const handleMarkAsRead = async (id: string) => {
-    try {
-      await markAsRead.mutateAsync(id);
-    } catch {
-      // Silent fail
+  // Listen for new notifications in realtime so badge updates instantly
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("notification-bell-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
+
+  const handleNotificationClick = async (notification: any) => {
+    // Don't mark tenancy invitations as read on click —
+    // only mark them read when the user explicitly accepts or declines.
+    if (!notification.read && notification.type !== "tenancy") {
+      try {
+        await markAsRead.mutateAsync(notification.id);
+      } catch {
+        // Silent fail
+      }
+    }
+
+    if (notification.type === "tenancy") {
+      router.push("/notifications");
     }
   };
 
@@ -40,6 +73,8 @@ export function NotificationBell() {
         return <CreditCard className="w-4 h-4 text-blue-500" />;
       case "message":
         return <MessageSquare className="w-4 h-4 text-green-500" />;
+      case "tenancy":
+        return <UserPlus className="w-4 h-4 text-purple-500" />;
       default:
         return <Info className="w-4 h-4 text-gray-500" />;
     }
@@ -60,6 +95,16 @@ export function NotificationBell() {
     if (days < 7) return `${days}d ago`;
     return date.toLocaleDateString();
   };
+
+  if (!mounted) {
+    return (
+      <button className="relative p-2 rounded-[10px] hover:bg-gray-100 transition-colors">
+        <Bell className="w-5 h-5 text-gray-600" />
+      </button>
+    );
+  }
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <DropdownMenu>
@@ -104,7 +149,7 @@ export function NotificationBell() {
             <DropdownMenuItem
               key={notification.id}
               className="p-0 cursor-pointer"
-              onClick={() => !notification.read && handleMarkAsRead(notification.id)}
+              onClick={() => handleNotificationClick(notification)}
             >
               <div
                 className={`flex items-start gap-3 px-4 py-3 w-full transition-colors ${

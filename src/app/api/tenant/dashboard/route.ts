@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import { getUser } from "@/services/user";
 import type {
   TenantDashboardResponse,
   TenantRentInfo,
@@ -15,21 +14,28 @@ function deriveStatus(dbStatus: string, dueDate: string | null): PaymentStatus {
   return new Date(dueDate ?? "") < new Date() ? "overdue" : "pending";
 }
 
-async function getAuthedUser() {
-  const userData = await getUser();
-  if (!userData || userData.role !== "tenant") return null;
-  return userData;
+async function getAuthedTenant(supabase: Awaited<ReturnType<typeof createServerClient>>) {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "tenant") return null;
+  return { id: user.id };
 }
 
 export async function GET() {
-  const user = await getAuthedUser();
+  const supabase = await createServerClient();
+  const user = await getAuthedTenant(supabase);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const supabase = await createServerClient();
-
     const { data: allTenancies, error: tenanciesError } = await supabase
       .from("tenancies")
       .select(
@@ -61,6 +67,7 @@ export async function GET() {
     const tenanciesList: TenantTenancyItem[] = (allTenancies ?? []).map(
       (t: any) => ({
         id: t.id,
+        unitId: t.unit?.id ?? "",
         status: t.status,
         startDate: t.start_date,
         unitLabel: `Unit ${t.unit?.name ?? "—"}`,
@@ -150,7 +157,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getAuthedUser();
+  const supabase = await createServerClient();
+  const user = await getAuthedTenant(supabase);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -159,8 +167,6 @@ export async function POST(req: NextRequest) {
   let fileNameToDelete: string | null = null;
 
   try {
-    const supabase = await createServerClient();
-    
     const formData = await req.formData();
     const tenancyId = formData.get("tenancyId") as string;
     const paymentId = formData.get("paymentId") as string | null;
