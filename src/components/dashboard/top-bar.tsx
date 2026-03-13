@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authService } from "@/services/auth";
 import { NotificationBell } from "./notification-bell";
+import { ThemeToggle } from "./theme-toggle";
 
 interface TopBarProps {
   title: string;
@@ -53,7 +54,7 @@ export function TopBar({ title, user }: TopBarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 lg:hidden bg-white/90 backdrop-blur-md border-b border-gray-200">
+    <header className="sticky top-0 z-40 lg:hidden bg-background/80 backdrop-blur-md border-b border-border transition-all">
       <div className="flex items-center justify-between h-16 px-4">
         {/* Left: Menu + Title */}
         <div className="flex items-center gap-3">
@@ -65,6 +66,7 @@ export function TopBar({ title, user }: TopBarProps) {
 
         {/* Right: Notifications + Avatar */}
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationBell />
 
           <DropdownMenu>

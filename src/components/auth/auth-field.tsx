@@ -22,7 +22,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
       <div className="space-y-1.5">
         <Label
           htmlFor={id}
-          className="text-sm font-semibold text-gray-700 tracking-[-0.01em]"
+          className="text-sm font-semibold text-muted-foreground tracking-[-0.01em]"
         >
           {label}
         </Label>
@@ -33,13 +33,13 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
             id={id}
             type={inputType}
             className={cn(
-              "h-12 rounded-xl border bg-white px-4 text-sm text-gray-900",
-              "placeholder:text-gray-400 font-[Roboto,sans-serif]",
+              "h-12 rounded-xl border bg-background px-4 text-sm text-foreground",
+              "placeholder:text-muted-foreground font-[Roboto,sans-serif]",
               "transition-all duration-150",
-              "focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500",
+              "focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/50",
               error
-                ? "border-red-400 bg-red-50/40 focus-visible:ring-red-200 focus-visible:border-red-500"
-                : "border-gray-200 hover:border-gray-300",
+                ? "border-red-400 bg-red-50/40 dark:bg-red-500/10 focus-visible:ring-red-200 dark:focus-visible:ring-red-900 focus-visible:border-red-500"
+                : "border-border hover:border-gray-300 dark:hover:border-zinc-700",
               isPassword && "pr-11",
               className,
             )}
@@ -52,7 +52,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
               type="button"
               tabIndex={-1}
               onClick={() => setShowPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (

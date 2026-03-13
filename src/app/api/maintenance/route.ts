@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { getUser } from "@/services/user"
+import { createNotification } from "@/lib/notifications"
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient()
@@ -99,6 +100,35 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error("[POST /api/maintenance] Error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Notify the landlord
+  try {
+    const { data: unitInfo } = await supabase
+      .from("units")
+      .select(`
+        name,
+        property:properties (
+          landlord_id,
+          name
+        )
+      `)
+      .eq("id", unit_id)
+      .single()
+
+    const landlordId = (unitInfo?.property as any)?.landlord_id
+    if (landlordId) {
+      await createNotification({
+        userId: landlordId,
+        title: "New Maintenance Request",
+        message: `${profile.full_name} submitted a new request: "${title}" for ${unitInfo?.name} at ${(unitInfo?.property as any)?.name}.`,
+        type: "system",
+        data: { requestId: data.id, unitId: unit_id }
+      })
+    }
+  } catch (notifyError) {
+    console.error("[POST /api/maintenance] Notification Error:", notifyError)
+    // Don't fail the request if notification fails
   }
 
   return NextResponse.json({ request: data }, { status: 201 })

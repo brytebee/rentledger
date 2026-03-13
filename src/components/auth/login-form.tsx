@@ -128,12 +128,12 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         <RoleTabs value={role} onChange={setRole} />
 
-        <Separator className="bg-gray-100" />
+        <Separator className="bg-border" />
 
         {serverError && (
           <Alert
             variant="destructive"
-            className="border-red-200 bg-red-50 text-red-800 rounded-[10px] py-3"
+            className="border-red-200/50 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-400 rounded-[10px] py-3"
           >
             <AlertTitle className="text-sm font-semibold leading-none mb-1">
               Authentication Error
@@ -145,8 +145,8 @@ export function LoginForm() {
         )}
 
         {success && (
-          <Alert className="border-green-200 bg-green-50 text-green-800 rounded-[10px] py-3">
-            <CheckCircle2 className="w-4 h-4 text-green-600" />
+          <Alert className="border-green-200/50 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[10px] py-3">
+            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
             <AlertTitle className="text-sm font-semibold leading-none mb-1">
               Login successful
             </AlertTitle>
@@ -197,7 +197,7 @@ export function LoginForm() {
             "w-full h-12 rounded-xl font-semibold text-[0.9375rem] gap-2 mt-2",
             "bg-blue-500 hover:bg-blue-600 text-white",
             "transition-all duration-150",
-            "hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-px",
+            "hover:shadow-lg hover:shadow-blue-500/20 dark:hover:shadow-blue-500/10 hover:-translate-y-px",
             "disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none",
           )}
         >

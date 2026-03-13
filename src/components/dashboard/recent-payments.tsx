@@ -26,9 +26,9 @@ interface RecentPaymentsProps {
 }
 
 const statusStyles = {
-  paid: "bg-green-100 text-green-700",
-  pending: "bg-amber-100 text-amber-700",
-  overdue: "bg-red-100 text-red-700",
+  paid: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",
+  pending: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
+  overdue: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
 };
 
 export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
@@ -74,9 +74,9 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
   }
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-[32px] border-gray-100 dark:border-border shadow-sm bg-white dark:bg-card overflow-hidden transition-colors">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-lg font-black text-gray-900 dark:text-zinc-100">
           Recent Payments
         </CardTitle>
         <Link
@@ -97,16 +97,16 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
                 {payment.tenantInitials}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-bold text-gray-900 dark:text-zinc-100">
                   {payment.tenantName}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-400 dark:text-zinc-500">
                   {payment.unitLabel} • {formatDate(payment.date)}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-black text-gray-900 dark:text-zinc-100">
                 {formatCurrency(payment.amount)}
               </p>
               <Badge

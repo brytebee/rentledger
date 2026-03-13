@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import axios from "axios";
+import { createNotification } from "@/lib/notifications";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
@@ -46,6 +47,42 @@ export async function GET(req: NextRequest) {
       if (insertError) {
         console.error("[Paystack Verify] DB Insert Error:", insertError);
         return NextResponse.json({ error: "Payment verified but failed to record in DB" }, { status: 500 });
+      }
+
+      // Notify the landlord
+      try {
+        const { data: tenancyInfo } = await supabase
+          .from("tenancies")
+          .select(`
+            id,
+            tenant:profiles!tenant_id (full_name),
+            unit:units (
+              name,
+              property:properties (
+                landlord_id,
+                name
+              )
+            )
+          `)
+          .eq("id", tenancyId)
+          .single();
+
+        const landlordId = (tenancyInfo?.unit as any)?.property?.landlord_id;
+        const tenantName = (tenancyInfo?.tenant as any)?.full_name || "A tenant";
+        const unitName = (tenancyInfo?.unit as any)?.name;
+        const propertyName = (tenancyInfo?.unit as any)?.property?.name;
+
+        if (landlordId) {
+          await createNotification({
+            userId: landlordId,
+            title: "Payment Received",
+            message: `${tenantName} has paid ${new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount)} for ${unitName} at ${propertyName}.`,
+            type: "payment",
+            data: { tenancyId, amount, reference }
+          });
+        }
+      } catch (notifyError) {
+        console.error("[Paystack Verify] Notification Error:", notifyError);
       }
 
       return NextResponse.json({ success: true, data });

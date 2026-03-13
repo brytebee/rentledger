@@ -52,7 +52,7 @@ function StatCard({
   return (
     <Card
       className={cn(
-        "rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200",
+        "rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-card shadow-sm hover:shadow-md transition-all duration-200",
         "border-t-[3px]",
         accentBorder,
       )}
@@ -68,8 +68,8 @@ function StatCard({
             {icon}
           </div>
         </div>
-        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 tracking-tight">
+        <p className="text-sm font-bold text-muted-foreground mb-1">{title}</p>
+        <p className="text-2xl font-black text-foreground tracking-tight">
           {typeof value === "number" && formatAsCurrency ? formatCurrency(value) : value}
         </p>
         {sub && <div className="mt-2">{sub}</div>}
@@ -107,48 +107,39 @@ export function SummaryCards({ summary, loading }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
       <StatCard
-        title="Total Revenue"
+        title="Revenue"
         value={summary.totalRevenue}
         icon={<TrendingUp className="w-5 h-5 text-blue-500" />}
-        iconBg="bg-blue-50"
+        iconBg="bg-blue-50 dark:bg-blue-500/10"
         accent="blue"
-        sub={
-          summary.revenueGrowth > 0 && (
-            <span className="text-xs font-medium text-green-600">
-              ↑ {summary.revenueGrowth}% vs last month
-            </span>
-          )
-        }
       />
       <StatCard
-        title="Pending"
-        value={summary.pendingPayments}
-        icon={<Clock className="w-5 h-5 text-amber-500" />}
-        iconBg="bg-amber-50"
-        accent="amber"
-        formatAsCurrency={false}
+        title="Net Profit"
+        value={summary.profitability}
+        icon={<TrendingUp className={cn("w-5 h-5", summary.profitability >= 0 ? "text-green-500" : "text-red-500")} />}
+        iconBg={summary.profitability >= 0 ? "bg-green-50 dark:bg-green-500/10" : "bg-red-50 dark:bg-red-500/10"}
+        accent={summary.profitability >= 0 ? "green" : "red"}
       />
       <StatCard
-        title="Overdue"
-        value={summary.overduePayments}
-        icon={<AlertTriangle className="w-5 h-5 text-red-500" />}
-        iconBg="bg-red-50"
+        title="Expenses"
+        value={summary.totalExpenses}
+        icon={<TrendingUp className="w-5 h-5 text-red-500 rotate-180" />}
+        iconBg="bg-red-50 dark:bg-red-500/10"
         accent="red"
-        formatAsCurrency={false}
       />
       <StatCard
         title="Properties"
         value={summary.propertiesCount}
         icon={<Building2 className="w-5 h-5 text-violet-500" />}
-        iconBg="bg-violet-50"
+        iconBg="bg-violet-50 dark:bg-violet-500/10"
         accent="blue"
         formatAsCurrency={false}
       />
       <StatCard
         title="Active Tenants"
         value={summary.activeTenantsCount}
-        icon={<Users className="w-5 h-5 text-green-600" />}
-        iconBg="bg-green-50"
+        icon={<Users className="w-5 h-5 text-green-500" />}
+        iconBg="bg-green-50 dark:bg-green-500/10"
         accent="green"
         formatAsCurrency={false}
       />
@@ -156,7 +147,7 @@ export function SummaryCards({ summary, loading }: SummaryCardsProps) {
         title="Maintenance"
         value={summary.openMaintenanceCount}
         icon={<Wrench className="w-5 h-5 text-indigo-500" />}
-        iconBg="bg-indigo-50"
+        iconBg="bg-indigo-50 dark:bg-indigo-500/10"
         accent="blue"
         formatAsCurrency={false}
       />

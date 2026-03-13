@@ -197,11 +197,22 @@ export async function GET() {
         .in("status", ["open", "in_progress"])
         .in("unit_id", unitIds)
 
+      // --- New: Expense Tracking Integration ---
+      const { data: expensesData } = await supabase
+        .from("expenses")
+        .select("amount")
+        .eq("landlord_id", user.id)
+
+      const totalExpenses = (expensesData ?? []).reduce((sum, e) => sum + Number(e.amount), 0)
+      const profitability = totalRevenue - totalExpenses
+
       return NextResponse.json({
         role,
         summary: {
           totalRevenue,
           revenueGrowth: 0,
+          totalExpenses,
+          profitability,
           pendingPayments,
           overduePayments,
           activeTenantsCount: activeTenantsCount ?? 0,

@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/auth";
 import { NotificationBell } from "./notification-bell";
+import { ThemeToggle } from "./theme-toggle";
 
 interface NavItem {
   href: string;
@@ -132,13 +133,13 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden lg:flex flex-col w-60 xl:w-65 h-screen sticky top-0 bg-white border-r border-gray-100 shrink-0 z-30">
+    <aside className="hidden lg:flex flex-col w-60 xl:w-65 h-screen sticky top-0 bg-sidebar border-r border-border shrink-0 z-30 transition-colors">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 h-16 border-b border-gray-100">
+      <div className="flex items-center gap-3 px-6 h-16 border-b border-border">
         <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-sm shadow-blue-200">
           <Home className="w-4 h-4 text-white" />
         </div>
-        <span className="font-black text-gray-900 text-[1.0625rem] tracking-[-0.02em]">
+        <span className="font-black text-foreground text-[1.0625rem] tracking-[-0.02em]">
           RentLedger
         </span>
       </div>
@@ -161,8 +162,8 @@ export function Sidebar({ user }: SidebarProps) {
                 "text-sm font-semibold transition-all duration-150",
                 "min-h-11",
                 isActive
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                  ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-500/20 shadow-sm relative"
+                  : "text-gray-600 dark:text-zinc-500 hover:bg-gray-50 dark:hover:bg-zinc-900/50 hover:text-gray-900 dark:hover:text-zinc-100",
               )}
             >
               <div className="flex items-center gap-3">
@@ -171,12 +172,15 @@ export function Sidebar({ user }: SidebarProps) {
                     "transition-colors",
                     isActive
                       ? "text-blue-500"
-                      : "text-gray-400 group-hover:text-gray-600",
+                      : "text-gray-400 dark:text-zinc-500 group-hover:text-gray-600 dark:group-hover:text-zinc-300",
                   )}
                 >
                   {item.icon}
                 </span>
                 {item.label}
+                {isActive && (
+                  <span className="absolute left-0 w-1 h-5 bg-blue-600 dark:bg-blue-500 rounded-r-full" />
+                )}
               </div>
               {item.badge ? (
                 <Badge className="h-5 min-w-[20px] px-1.5 text-[0.625rem] font-bold bg-blue-500 text-white hover:bg-blue-500 rounded-full">
@@ -195,35 +199,36 @@ export function Sidebar({ user }: SidebarProps) {
             href="/account"
             className={cn(
               "group flex items-center gap-3 px-3 py-2.5 rounded-[10px]",
-              "text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+              "text-sm font-semibold text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-zinc-100",
               "transition-all duration-150 min-h-[44px]",
             )}
           >
-            <Settings className="w-[18px] h-[18px] text-gray-400 group-hover:text-gray-600 transition-colors" />
+            <Settings className="w-[18px] h-[18px] text-gray-400 dark:text-zinc-500 group-hover:text-gray-600 dark:group-hover:text-zinc-300 transition-colors" />
             Settings
           </Link>
           <Link
             href="/help"
             className={cn(
               "group flex items-center gap-3 px-3 py-2.5 rounded-[10px]",
-              "text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+              "text-sm font-semibold text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-zinc-100",
               "transition-all duration-150 min-h-[44px]",
             )}
           >
-            <HelpCircle className="w-[18px] h-[18px] text-gray-400 group-hover:text-gray-600 transition-colors" />
+            <HelpCircle className="w-[18px] h-[18px] text-gray-400 dark:text-zinc-500 group-hover:text-gray-600 dark:group-hover:text-zinc-300 transition-colors" />
             Help & Support
           </Link>
         </div>
       </nav>
 
       {/* User section */}
-      <div className="px-3 py-4 border-t border-gray-100">
-        <div className="flex items-center justify-end mb-2">
+      <div className="px-3 py-4 border-t border-border mt-auto">
+        <div className="flex items-center justify-end gap-2 mb-3 px-2">
+          <ThemeToggle />
           <NotificationBell />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-gray-50 transition-colors group">
+            <button className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl bg-gray-50/50 dark:bg-zinc-900/30 border border-gray-100 dark:border-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-900/50 transition-all group">
               <Avatar className="w-9 h-9 shrink-0">
                 <AvatarImage src={user.avatarUrl} alt={user.name} />
                 <AvatarFallback className="bg-linear-to-br from-blue-500 to-violet-500 text-white text-xs font-bold">
@@ -231,7 +236,7 @@ export function Sidebar({ user }: SidebarProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate leading-none mb-0.5">
+                <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100 truncate leading-none mb-0.5">
                   {user.name}
                 </p>
                 <p className="text-xs text-gray-400 truncate capitalize font-[Roboto,sans-serif]">

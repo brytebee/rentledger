@@ -50,7 +50,7 @@ export async function PATCH(
 
   const { id } = await params
   const body = await req.json()
-  const { status, priority } = body
+  const { status, priority, landlord_comment } = body
 
   // Fetch the request first to check ownership/permissions and get details for notification
   const { data: request, error: fetchError } = await supabase
@@ -67,6 +67,7 @@ export async function PATCH(
   const update: any = {}
   if (status) update.status = status
   if (priority) update.priority = priority
+  if (landlord_comment !== undefined) update.landlord_comment = landlord_comment
   update.updated_at = new Date().toISOString()
 
   const { data, error } = await supabase
@@ -81,12 +82,16 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Trigger notification if status changed
-  if (status && request.tenant_id) {
+  // Trigger notification if status or comment changed
+  if ((status || landlord_comment) && request.tenant_id) {
+    let message = `Your maintenance request "${request.title}" has been updated.`
+    if (status) message = `The status of your maintenance request "${request.title}" has been updated to ${status}.`
+    if (landlord_comment) message += ` Landlord comment: "${landlord_comment}"`
+
     await createNotification({
       userId: request.tenant_id,
       title: "Maintenance Update",
-      message: `The status of your maintenance request "${request.title}" has been updated to ${status}.`,
+      message: message,
       type: "system",
       data: { requestId: id, unitId: request.unit_id }
     })

@@ -20,7 +20,24 @@ import {
   XCircle,
   MessageSquare,
   Image as ImageIcon,
+  Send,
 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +66,7 @@ interface MaintenanceRequest {
   tenant: {
     full_name: string
   }
+  landlord_comment?: string
 }
 
 interface MaintenanceListProps {
@@ -81,6 +99,93 @@ const statusConfig = {
   },
 }
 
+function ReplyDialog({ 
+  request, 
+  open, 
+  onClose, 
+  onSuccess 
+}: { 
+  request: MaintenanceRequest | null, 
+  open: boolean, 
+  onClose: () => void, 
+  onSuccess: () => void 
+}) {
+  const [comment, setComment] = useState(request?.landlord_comment || "")
+  const [status, setStatus] = useState(request?.status || "open")
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!request) return
+    try {
+      setLoading(true)
+      await axios.patch(`/api/maintenance/${request.id}`, {
+        status,
+        landlord_comment: comment
+      })
+      toast.success("Response sent successfully")
+      onSuccess()
+      onClose()
+    } catch (err) {
+      console.error("Failed to send response:", err)
+      toast.error("Failed to send response")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="rounded-3xl border-gray-100 shadow-2xl sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">Reply to Request</DialogTitle>
+          <DialogDescription className="text-sm">
+            Update the status and provide feedback to the tenant.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6 py-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Update Status</label>
+            <Select value={status} onValueChange={(v: any) => setStatus(v)}>
+              <SelectTrigger className="h-12 rounded-2xl border-gray-100 bg-gray-50/50">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-gray-100">
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Comment</label>
+            <Textarea 
+              placeholder="Provide more details or instructions for the tenant..."
+              className="min-h-[150px] rounded-2xl border-gray-100 bg-gray-50/50 p-4 focus:ring-blue-500"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="gap-3 pt-2">
+          <Button variant="ghost" onClick={onClose} className="rounded-xl h-12">Cancel</Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={loading}
+            className="rounded-xl h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 gap-2"
+          >
+            {loading ? <Clock className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Send Response
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 const priorityConfig = {
   low: { label: "Low", color: "bg-gray-100 text-gray-700" },
   medium: { label: "Medium", color: "bg-blue-100 text-blue-700" },
@@ -95,6 +200,7 @@ export function MaintenanceList({
   role,
 }: MaintenanceListProps) {
   const [updating, setUpdating] = useState<string | null>(null)
+  const [replyRequest, setReplyRequest] = useState<MaintenanceRequest | null>(null)
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
@@ -223,8 +329,11 @@ export function MaintenanceList({
                         <XCircle className="w-4 h-4 mr-2" /> Reject Request
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-gray-50" />
-                      <DropdownMenuItem className="rounded-xl py-2.5 cursor-pointer">
-                        <MessageSquare className="w-4 h-4 mr-2" /> Message Tenant
+                      <DropdownMenuItem 
+                        onClick={() => setReplyRequest(request)}
+                        className="rounded-xl py-2.5 cursor-pointer focus:bg-blue-50 focus:text-blue-700"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" /> Reply & Update
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -236,6 +345,15 @@ export function MaintenanceList({
               <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed bg-gray-50/50 p-4 rounded-2xl">
                 {request.description}
               </p>
+
+              {request.landlord_comment && (
+                <div className="bg-blue-50/50 border border-blue-100/50 p-4 rounded-2xl space-y-2">
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Landlord's Response</p>
+                  <p className="text-sm text-blue-900 leading-relaxed italic">
+                    "{request.landlord_comment}"
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center gap-2">
@@ -257,6 +375,13 @@ export function MaintenanceList({
           </Card>
         )
       })}
+      
+      <ReplyDialog 
+        request={replyRequest} 
+        open={!!replyRequest} 
+        onClose={() => setReplyRequest(null)}
+        onSuccess={onUpdate}
+      />
     </div>
   )
 }

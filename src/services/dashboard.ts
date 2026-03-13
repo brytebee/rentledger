@@ -48,6 +48,8 @@ interface TenancyWithUnit {
 export interface DashboardSummary {
   totalRevenue: number;
   revenueGrowth: number;
+  totalExpenses: number;
+  profitability: number;
   pendingPayments: number;
   overduePayments: number;
   activeTenantsCount: number;
@@ -136,11 +138,13 @@ export const dashboardService = {
       const summary: DashboardSummary = {
         totalRevenue: stats?.total_revenue ?? 0,
         revenueGrowth: 0,
+        totalExpenses: 0, // Values will be populated by the API route which does the joint correctly
+        profitability: stats?.total_revenue ?? 0,
         pendingPayments: Number(stats?.pending_payments_count ?? 0),
         overduePayments: Number(stats?.overdue_tenants_count ?? 0),
         activeTenantsCount: Number(stats?.active_tenants ?? 0),
         propertiesCount: Number(stats?.total_properties ?? 0),
-        openMaintenanceCount: 0, // Placeholder as this service method doesn't fetch it yet, but API does
+        openMaintenanceCount: 0, 
         recentPayments,
       };
 

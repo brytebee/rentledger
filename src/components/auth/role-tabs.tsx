@@ -27,7 +27,7 @@ export function RoleTabs({ value, onChange }: RoleTabsProps) {
   return (
     <div
       role="tablist"
-      className="flex bg-gray-100 rounded-[10px] p-1 gap-1"
+      className="flex bg-muted rounded-[12px] p-1 gap-1"
       aria-label="Select account type"
     >
       {roles.map((role) => (
@@ -42,8 +42,8 @@ export function RoleTabs({ value, onChange }: RoleTabsProps) {
             "text-sm font-semibold transition-all duration-200",
             "min-h-[44px]",
             value === role.value
-              ? "bg-white text-blue-600 shadow-sm border border-gray-200"
-              : "text-gray-500 hover:text-gray-700 hover:bg-white/50",
+              ? "bg-card text-blue-500 shadow-sm border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50",
           )}
         >
           {role.icon}
