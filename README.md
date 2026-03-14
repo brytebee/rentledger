@@ -6,13 +6,25 @@ A modern rent management platform built with Next.js and Supabase that helps lan
 
 RentLedger simplifies rent management by replacing manual tracking (notebooks, WhatsApp chats, Excel sheets) with structured dashboards and automated payment tracking.
 
+## Screenshots
+
+### Landlord
+
+![Landlord Dashboard](public/images/landlord.png)
+
+### Tenant
+
+![Tenant Dashboard](public/images/tenant.png)
+
 **Problem Solved:**
+
 - Landlords forget who has paid
 - Tenants forget due dates
 - No clear record of outstanding balances
 - Manual tracking causes conflicts and stress
 
 **Solution:**
+
 - Automated rent payment monitoring
 - Clear dashboards showing who paid and who hasn't
 - Overdue payment tracking
@@ -62,6 +74,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Features
 
 ### Landlord Features
+
 - Create and manage properties
 - Add units inside properties
 - Assign tenants to units
@@ -70,12 +83,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - View revenue, pending, and overdue payments
 
 ### Tenant Features
+
 - View assigned unit and rent amount
 - See next due date and overdue status
 - View payment history
 - Submit payment proof
 
 ### Smart Logic
+
 - Automatic overdue status calculation
 - Dashboard auto-calculations
 - One active tenancy per tenant
