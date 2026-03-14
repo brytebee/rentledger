@@ -88,6 +88,17 @@ export interface Message {
   created_at: string | null
 }
 
+export interface Expense {
+  id: string
+  landlord_id: string
+  property_id: string | null
+  amount: number
+  category: string
+  description: string | null
+  date: string
+  created_at: string | null
+}
+
 export type Json =
   | string
   | number
@@ -141,6 +152,54 @@ export type Database = {
             columns: ["tenancy_id"]
             isOneToOne: false
             referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          landlord_id: string
+          property_id: string | null
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string | null
+          date: string
+          description?: string | null
+          id?: string
+          landlord_id: string
+          property_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          landlord_id?: string
+          property_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_landlord_id_fkey"
+            columns: ["landlord_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
