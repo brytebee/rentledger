@@ -75,11 +75,15 @@ export async function PATCH(
     .update(update)
     .eq("id", id)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error(`[PATCH /api/maintenance/${id}] Error:`, error)
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  if (!data) {
+    return NextResponse.json({ error: "Failed to update maintenance request. You may not have permission or it may have been removed." }, { status: 404 })
   }
 
   // Trigger notification if status or comment changed

@@ -16,8 +16,6 @@ export async function GET(req: NextRequest) {
   }
 
   const normalizedPhone = normalizePhoneNumber(phone)
-  console.log("[validate] raw phone:", phone)
-  console.log("[validate] normalized phone:", normalizedPhone)
 
   const { data: profile, error } = await supabase
     .from("profiles")
@@ -31,10 +29,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (!profile) {
-    console.log("[validate] No profile found for", normalizedPhone)
+    // No profile found
     return NextResponse.json({ valid: false }, { status: 200 })
   }
 
-  console.log("[validate] Match found:", profile.id)
   return NextResponse.json({ valid: true }, { status: 200 })
 }

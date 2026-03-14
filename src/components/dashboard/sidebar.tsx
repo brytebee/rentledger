@@ -133,7 +133,7 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden lg:flex flex-col w-60 xl:w-65 h-screen sticky top-0 bg-sidebar border-r border-border shrink-0 z-30 transition-colors">
+    <aside className="hidden lg:flex flex-col w-60 xl:w-65 h-screen sticky top-0 bg-card border-r border-border shrink-0 z-30 transition-colors">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 h-16 border-b border-border">
         <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-sm shadow-blue-200">
@@ -146,7 +146,7 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* Nav Items */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <p className="px-3 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-gray-400 mb-3">
+        <p className="px-3 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-3">
           Main Menu
         </p>
         {navItems.map((item) => {
@@ -192,7 +192,7 @@ export function Sidebar({ user }: SidebarProps) {
         })}
 
         <div className="pt-4">
-          <p className="px-3 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-gray-400 mb-3">
+          <p className="px-3 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-3">
             Support
           </p>
           <Link
@@ -228,7 +228,7 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl bg-gray-50/50 dark:bg-zinc-900/30 border border-gray-100 dark:border-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-900/50 transition-all group">
+            <button className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl bg-muted border border-border/50 hover:bg-muted/80 transition-all group">
               <Avatar className="w-9 h-9 shrink-0">
                 <AvatarImage src={user.avatarUrl} alt={user.name} />
                 <AvatarFallback className="bg-linear-to-br from-blue-500 to-violet-500 text-white text-xs font-bold">
@@ -236,14 +236,14 @@ export function Sidebar({ user }: SidebarProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100 truncate leading-none mb-0.5">
+                <p className="text-sm font-semibold text-foreground truncate leading-none mb-0.5">
                   {user.name}
                 </p>
-                <p className="text-xs text-gray-400 truncate capitalize font-[Roboto,sans-serif]">
+                <p className="text-xs text-muted-foreground truncate capitalize font-[Roboto,sans-serif]">
                   {user.role}
                 </p>
               </div>
-              <ChevronDown className="w-4 h-4 text-gray-400 shrink-0 group-hover:text-gray-600 transition-colors" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
             </button>
           </DropdownMenuTrigger>
 
@@ -251,11 +251,11 @@ export function Sidebar({ user }: SidebarProps) {
             align="end"
             side="top"
             sideOffset={8}
-            className="w-56 rounded-2xl border border-gray-200 shadow-xl shadow-gray-200/60 p-1.5"
+            className="w-56 rounded-2xl border border-border shadow-xl p-1.5 bg-card"
           >
             <DropdownMenuLabel className="px-2 py-1.5">
-              <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-              <p className="text-xs text-gray-400 font-normal truncate">
+              <p className="text-sm font-semibold text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground font-normal truncate">
                 {user.email}
               </p>
             </DropdownMenuLabel>

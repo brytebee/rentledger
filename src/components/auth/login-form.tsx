@@ -133,7 +133,7 @@ export function LoginForm() {
         {serverError && (
           <Alert
             variant="destructive"
-            className="border-red-200/50 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-400 rounded-[10px] py-3"
+            className="border-red-500/20 bg-red-500/10 text-red-500 rounded-[10px] py-3"
           >
             <AlertTitle className="text-sm font-semibold leading-none mb-1">
               Authentication Error
@@ -145,8 +145,8 @@ export function LoginForm() {
         )}
 
         {success && (
-          <Alert className="border-green-200/50 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[10px] py-3">
-            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+          <Alert className="border-green-500/20 bg-green-500/10 text-green-500 rounded-[10px] py-3">
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
             <AlertTitle className="text-sm font-semibold leading-none mb-1">
               Login successful
             </AlertTitle>
@@ -216,7 +216,7 @@ export function LoginForm() {
           )}
         </Button>
 
-        <p className="text-center text-[0.75rem] text-gray-400 font-[Roboto,sans-serif] leading-relaxed">
+        <p className="text-center text-[0.75rem] text-muted-foreground font-[Roboto,sans-serif] leading-relaxed">
           By clicking Continue, you agree to our{" "}
           <a
             href="/terms"
@@ -236,15 +236,15 @@ export function LoginForm() {
       </form>
 
       <Dialog open={showConfirmedModal} onOpenChange={setShowConfirmedModal}>
-        <DialogContent className="sm:max-w-[420px] p-0 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
+        <DialogContent className="sm:max-w-[420px] p-0 rounded-2xl border border-border shadow-2xl overflow-hidden bg-card">
           <DialogHeader className="pb-0 pt-6 px-6">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-green-500" />
             </div>
-            <DialogTitle className="text-xl font-black text-center tracking-tight">
+            <DialogTitle className="text-xl font-black text-center tracking-tight text-foreground">
               Email Confirmed!
             </DialogTitle>
-            <p className="text-sm text-gray-500 text-center leading-relaxed">
+            <p className="text-sm text-muted-foreground text-center leading-relaxed">
               Your email has been successfully verified. You can now log in to
               your account.
             </p>

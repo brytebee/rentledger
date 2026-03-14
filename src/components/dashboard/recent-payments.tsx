@@ -34,21 +34,24 @@ const statusStyles = {
 export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
   if (loading) {
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-[32px] border-border bg-card overflow-hidden">
         <CardHeader className="pb-2">
-          <Skeleton className="w-32 h-5" />
+          <Skeleton className="w-32 h-6 rounded-xl" />
         </CardHeader>
-        <CardContent className="space-y-4">
-          {[...Array(5)].map((_, i) => (
+        <CardContent className="space-y-6 pt-4">
+          {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Skeleton className="w-9 h-9 rounded-full" />
-                <div>
-                  <Skeleton className="w-24 h-4 mb-1" />
-                  <Skeleton className="w-16 h-3" />
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="w-28 h-4 rounded-lg" />
+                  <Skeleton className="w-20 h-3 rounded-lg" />
                 </div>
               </div>
-              <Skeleton className="w-16 h-5 rounded-full" />
+              <div className="flex flex-col items-end gap-2">
+                 <Skeleton className="w-16 h-4 rounded-lg" />
+                 <Skeleton className="w-12 h-4 rounded-full" />
+              </div>
             </div>
           ))}
         </CardContent>
@@ -58,32 +61,34 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
 
   if (!payments || payments.length === 0) {
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl border-border bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">
+          <CardTitle className="text-base font-bold text-foreground">
             Recent Payments
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500 text-center py-8">
-            No recent payments
-          </p>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              No recent payments
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="rounded-[32px] border-gray-100 dark:border-border shadow-sm bg-white dark:bg-card overflow-hidden transition-colors">
+    <Card className="rounded-[32px] border-border shadow-sm bg-card overflow-hidden transition-colors">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-black text-gray-900 dark:text-zinc-100">
+        <CardTitle className="text-lg font-black text-foreground">
           Recent Payments
         </CardTitle>
         <Link
           href="/payments"
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+          className="text-xs text-blue-500 hover:text-blue-600 font-bold uppercase tracking-wider flex items-center gap-1"
         >
-          View all <ArrowRight className="w-4 h-4" />
+          View all <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -97,16 +102,16 @@ export function RecentPayments({ payments, loading }: RecentPaymentsProps) {
                 {payment.tenantInitials}
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-zinc-100">
+                <p className="text-sm font-bold text-foregroundLeading-tight">
                   {payment.tenantName}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-zinc-500">
+                <p className="text-xs text-muted-foreground font-[Roboto,sans-serif] mt-0.5">
                   {payment.unitLabel} • {formatDate(payment.date)}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm font-black text-gray-900 dark:text-zinc-100">
+              <p className="text-sm font-black text-foreground">
                 {formatCurrency(payment.amount)}
               </p>
               <Badge

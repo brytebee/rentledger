@@ -33,11 +33,11 @@ import { toast } from "sonner";
 function NoTenancyState() {
   return (
     <div className="p-6 lg:p-8 space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Dashboard</h1>
-      <Card className="rounded-2xl border-gray-100 dark:border-border bg-white dark:bg-card">
-        <CardContent className="p-8 text-center">
-          <p className="text-gray-500 dark:text-zinc-400">No tenancy data found.</p>
-          <p className="text-sm text-gray-400 mt-2">
+      <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+      <Card className="rounded-2xl border-border bg-card overflow-hidden">
+        <CardContent className="p-8 text-center bg-muted/30">
+          <p className="text-muted-foreground font-medium">No tenancy data found.</p>
+          <p className="text-sm text-muted-foreground/60 mt-2">
             Contact your landlord to get assigned to a unit.
           </p>
         </CardContent>
@@ -88,7 +88,7 @@ function TenancyAcceptDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-2xl border-gray-200 dark:border-zinc-800 bg-white dark:bg-card">
+      <DialogContent className="rounded-2xl border-border bg-card shadow-2xl">
         <DialogHeader>
           <DialogTitle>Pending Invitation</DialogTitle>
           <DialogDescription>
@@ -97,11 +97,11 @@ function TenancyAcceptDialog({
         </DialogHeader>
         {tenancy && (
           <div className="space-y-4">
-            <div className="p-4 bg-gray-50 dark:bg-zinc-900/50 rounded-xl border border-gray-100 dark:border-zinc-800">
-              <p className="font-semibold text-gray-900 dark:text-zinc-100">{tenancy.propertyName}</p>
-              <p className="text-sm text-gray-500 dark:text-zinc-400">{tenancy.unitLabel}</p>
+            <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+              <p className="font-semibold text-foreground">{tenancy.propertyName}</p>
+              <p className="text-sm text-muted-foreground">{tenancy.unitLabel}</p>
               {tenancy.propertyAddress && (
-                <p className="text-sm text-gray-400 mt-1">{tenancy.propertyAddress}</p>
+                <p className="text-sm text-muted-foreground/60 mt-1">{tenancy.propertyAddress}</p>
               )}
               {tenancy.rentAmount > 0 && (
                 <p className="text-sm font-medium mt-2">₦{tenancy.rentAmount.toLocaleString()}</p>
@@ -109,11 +109,11 @@ function TenancyAcceptDialog({
             </div>
 
             {hasActiveTenancy && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className="text-sm font-medium text-amber-800">
+              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                <p className="text-sm font-bold text-amber-500">
                   You already have an active tenancy
                 </p>
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-amber-500/70 mt-1">
                   Accepting this invitation will replace your current tenancy. 
                   You will need to make payments for the new unit.
                 </p>
@@ -307,12 +307,12 @@ export function TenantDashboard() {
   if (error) {
     return (
       <div className="p-6 lg:p-8 space-y-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <Alert
           variant="destructive"
-          className="border-red-200 bg-red-50 rounded-2xl"
+          className="border-red-500/20 bg-red-500/10 rounded-2xl"
         >
-          <AlertDescription className="text-sm">{error}</AlertDescription>
+          <AlertDescription className="text-sm text-red-500">{error}</AlertDescription>
         </Alert>
         <Button onClick={fetchData} variant="outline" className="rounded-xl">
           Retry
@@ -333,8 +333,8 @@ export function TenantDashboard() {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Dashboard</h1>
-        <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Your rent status and payment history
         </p>
       </div>
@@ -361,7 +361,7 @@ export function TenantDashboard() {
                 <Button
                   onClick={() => setDlgOpen(true)}
                   variant="outline"
-                  className="flex-1 h-12 rounded-[10px] border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-900 text-gray-700 dark:text-zinc-300 font-bold"
+                  className="flex-1 h-12 rounded-[10px] border-border bg-muted/20 hover:bg-muted/40 text-foreground font-bold"
                 >
                   Manual Proof
                 </Button>
@@ -381,24 +381,24 @@ export function TenantDashboard() {
       )}
 
       {pendingTenancies.length > 0 && (
-        <Card className="rounded-2xl border-gray-100 dark:border-border bg-white dark:bg-card">
+        <Card className="rounded-2xl border-border bg-card shadow-sm overflow-hidden">
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-gray-900 dark:text-zinc-100">Pending Invitations</CardTitle>
+            <CardTitle className="text-lg font-bold text-foreground">Pending Invitations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingTenancies.map((tenancy) => (
               <div 
                 key={tenancy.id} 
-                className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/20 cursor-pointer transition-colors"
+                className="flex items-center justify-between p-3 bg-blue-500/5 border border-blue-500/10 rounded-xl hover:bg-blue-500/10 cursor-pointer transition-colors"
                 onClick={() => handleTenancyClick(tenancy)}
               >
                 <div>
-                  <p className="font-medium">{tenancy.propertyName}</p>
-                  <p className="text-sm text-gray-500">{tenancy.unitLabel}</p>
+                  <p className="font-bold text-foreground">{tenancy.propertyName}</p>
+                  <p className="text-sm text-muted-foreground">{tenancy.unitLabel}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-700">Pending</Badge>
-                  <Button size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-xs">
+                  <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20">Pending</Badge>
+                  <Button size="sm" className="h-8 bg-blue-500 hover:bg-blue-600 text-xs font-bold px-4 rounded-lg">
                     Respond
                   </Button>
                 </div>
@@ -415,12 +415,14 @@ export function TenantDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {pastTenancies.map((tenancy) => (
-              <div key={tenancy.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div key={tenancy.id} className="flex items-center justify-between p-3 bg-muted/30 border border-border/50 rounded-xl">
                 <div>
-                  <p className="font-medium">{tenancy.propertyName}</p>
-                  <p className="text-sm text-gray-500">{tenancy.unitLabel}</p>
+                  <p className="font-bold text-foreground">{tenancy.propertyName}</p>
+                  <p className="text-sm text-muted-foreground">{tenancy.unitLabel}</p>
                 </div>
-                <Badge variant="outline">{tenancy.status}</Badge>
+                <Badge variant="outline" className="border-border text-muted-foreground">
+                  {tenancy.status}
+                </Badge>
               </div>
             ))}
           </CardContent>
@@ -428,10 +430,10 @@ export function TenantDashboard() {
       )}
 
       {!hasActiveTenancy && pendingTenancies.length === 0 && (
-        <Card className="rounded-2xl border-gray-100 dark:border-border bg-white dark:bg-card">
-          <CardContent className="p-8 text-center">
-            <p className="text-gray-500 dark:text-zinc-400">No active tenancy</p>
-            <p className="text-sm text-gray-400 dark:text-zinc-500 mt-2">
+        <Card className="rounded-2xl border-border bg-card shadow-sm overflow-hidden">
+          <CardContent className="p-8 text-center bg-muted/30">
+            <p className="text-muted-foreground font-bold text-lg">No active tenancy</p>
+            <p className="text-sm text-muted-foreground/60 mt-2 max-w-sm mx-auto">
               You have no active tenancy. Contact your landlord to get assigned to a unit.
             </p>
           </CardContent>

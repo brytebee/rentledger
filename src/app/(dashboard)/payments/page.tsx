@@ -31,6 +31,8 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -72,22 +74,22 @@ interface Pagination {
 const statusCfg = {
   paid: {
     label: "Verified",
-    cls: "bg-green-100 text-green-700 border-green-200",
+    cls: "bg-green-500/10 text-green-500 border-green-500/20",
     icon: <CheckCircle2 className="w-3 h-3" />,
   },
   pending: {
     label: "Pending",
-    cls: "bg-amber-100 text-amber-700 border-amber-200",
+    cls: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     icon: <Clock className="w-3 h-3" />,
   },
   overdue: {
     label: "Overdue",
-    cls: "bg-red-100 text-red-700 border-red-200",
+    cls: "bg-red-500/10 text-red-500 border-red-500/20",
     icon: <AlertTriangle className="w-3 h-3" />,
   },
   rejected: {
     label: "Rejected",
-    cls: "bg-gray-100 text-gray-500 border-gray-200",
+    cls: "bg-muted text-muted-foreground border-border",
     icon: <XCircle className="w-3 h-3" />,
   },
 };
@@ -102,7 +104,7 @@ const avatarColors = [
 
 function PaymentRowSkeleton() {
   return (
-    <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-50 last:border-0">
+    <div className="flex items-center gap-3 px-5 py-4 border-b border-border last:border-0">
       <Skeleton className="w-10 h-10 rounded-full shrink-0" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-3.5 w-32" />
@@ -209,7 +211,7 @@ export default function PaymentsPage() {
           onValueChange={(v) => setActiveTab(v as TabValue)}
           className="mb-6"
         >
-          <TabsList className="bg-gray-100 p-1 rounded-[10px] h-auto gap-1">
+          <TabsList className="bg-muted p-1 rounded-[10px] h-auto gap-1">
             {[
               { value: "all", label: "All" },
               {
@@ -222,7 +224,7 @@ export default function PaymentsPage() {
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="rounded-xl text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-4 py-2 min-h-[36px] gap-1.5"
+                className="rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm px-4 py-2 min-h-[36px] gap-1.5"
               >
                 {tab.label}
               </TabsTrigger>
@@ -252,11 +254,11 @@ export default function PaymentsPage() {
         )}
 
         {/* Payments Card */}
-        <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <CardHeader className="px-5 py-4 border-b border-gray-100">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm">
+          <CardHeader className="px-5 py-4 border-b border-border">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-black tracking-[-0.02em] text-gray-900">
+                <h2 className="text-base font-black tracking-[-0.02em] text-foreground">
                   {activeTab === "all"
                     ? "All Payments"
                     : activeTab === "pending"
@@ -266,7 +268,7 @@ export default function PaymentsPage() {
                         : "Rejected Payments"}
                 </h2>
                 {!loading && (
-                  <p className="text-xs text-gray-400 mt-0.5 font-[Roboto,sans-serif]">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {payments.length} record{payments.length !== 1 ? "s" : ""}
                   </p>
                 )}
@@ -300,7 +302,7 @@ export default function PaymentsPage() {
           <CardContent className="p-0">
             {/* Loading */}
             {loading && (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-border/50">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <PaymentRowSkeleton key={i} />
                 ))}
@@ -310,13 +312,13 @@ export default function PaymentsPage() {
             {/* Empty per tab */}
             {!loading && !error && payments.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <CreditCard className="w-6 h-6 text-gray-400" />
+                <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <CreditCard className="w-6 h-6 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-semibold text-gray-700 mb-1">
+                <p className="text-sm font-semibold text-foreground mb-1">
                   No {activeTab === "all" ? "" : activeTab} payments
                 </p>
-                <p className="text-xs text-gray-400 font-[Roboto,sans-serif]">
+                <p className="text-xs text-muted-foreground font-[Roboto,sans-serif]">
                   Payments will appear here once tenants submit proof.
                 </p>
               </div>
@@ -324,7 +326,7 @@ export default function PaymentsPage() {
 
             {/* Payment rows */}
             {!loading && !error && payments.length > 0 && (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-border/50">
                 {payments.map((payment, i) => {
                   const cfg = statusCfg[payment.status] ?? statusCfg.pending;
                   const isVerifying = verifying === payment.id;
@@ -334,7 +336,7 @@ export default function PaymentsPage() {
                   return (
                     <div
                       key={payment.id}
-                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50/50 transition-colors cursor-pointer"
+                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer"
                       onClick={() => setSelectedPayment(payment)}
                     >
                       {/* Avatar */}
@@ -345,16 +347,16 @@ export default function PaymentsPage() {
                       </div>
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
+                        <p className="text-sm font-semibold text-foreground truncate leading-tight">
                           {payment.tenantName}
                         </p>
-                        <p className="text-xs text-gray-400 font-[Roboto,sans-serif] mt-0.5 truncate">
+                        <p className="text-xs text-muted-foreground font-[Roboto,sans-serif] mt-0.5 truncate">
                           {formatDate(payment.dueDate)} · {payment.unitLabel}
                         </p>
                       </div>
                       {/* Amount + status */}
                       <div className="flex flex-col items-end gap-1.5 shrink-0 mr-1">
-                        <p className="text-sm font-bold text-gray-900 tracking-[-0.01em]">
+                        <p className="text-sm font-bold text-foreground tracking-[-0.01em]">
                           {formatCurrency(payment.amount)}
                         </p>
                         <span
@@ -371,10 +373,10 @@ export default function PaymentsPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-xl hover:bg-gray-100 shrink-0"
+                              className="h-8 w-8 rounded-xl hover:bg-muted shrink-0"
                               disabled={isVerifying}
                             >
-                              <MoreVertical className="w-4 h-4 text-gray-500" />
+                              <MoreVertical className="w-4 h-4 text-muted-foreground" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
@@ -384,14 +386,14 @@ export default function PaymentsPage() {
                             <DropdownMenuItem
                               onClick={() => handleVerify(payment.id)}
                               disabled={isVerifying}
-                              className="gap-2 rounded-xl cursor-pointer text-green-700 focus:bg-green-50 focus:text-green-700"
+                              className="gap-2 rounded-xl cursor-pointer text-emerald-500 focus:bg-emerald-500/10 focus:text-emerald-500"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                               <span className="text-sm font-semibold">
                                 {isVerifying ? "Verifying..." : "Verify"}
                               </span>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                            <DropdownMenuSeparator className="bg-border my-1" />
                             <DropdownMenuItem
                               onClick={() =>
                                 setRejectTarget({
@@ -399,7 +401,7 @@ export default function PaymentsPage() {
                                   name: payment.tenantName,
                                 })
                               }
-                              className="gap-2 rounded-xl cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
+                              className="gap-2 rounded-xl cursor-pointer text-red-500 focus:bg-red-500/10 focus:text-red-500"
                             >
                               <XCircle className="w-4 h-4" />
                               <span className="text-sm font-semibold">
@@ -463,10 +465,10 @@ export default function PaymentsPage() {
                       {selectedPayment.tenantInitials}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-foreground">
                         {selectedPayment.tenantName}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {selectedPayment.propertyName}
                       </p>
                     </div>
@@ -474,38 +476,41 @@ export default function PaymentsPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted px-4 py-3 rounded-xl border border-border/50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">
                       Amount
                     </p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-lg font-black text-foreground">
                       {formatCurrency(selectedPayment.amount)}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted px-4 py-3 rounded-xl border border-border/50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">
                       Status
                     </p>
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusCfg[selectedPayment.status]?.cls}`}
+                      className={cn(
+                        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider",
+                        statusCfg[selectedPayment.status]?.cls
+                      )}
                     >
                       {statusCfg[selectedPayment.status]?.icon}
                       {statusCfg[selectedPayment.status]?.label}
                     </span>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted px-4 py-3 rounded-xl border border-border/50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">
                       Due Date
                     </p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {formatDate(selectedPayment.dueDate)}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted px-4 py-3 rounded-xl border border-border/50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">
                       Paid On
                     </p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {selectedPayment.paidAt
                         ? formatDate(selectedPayment.paidAt)
                         : "—"}
@@ -514,33 +519,33 @@ export default function PaymentsPage() {
                 </div>
 
                 {selectedPayment.reference && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted px-4 py-3 rounded-xl border border-border/50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">
                       Reference
                     </p>
-                    <p className="text-sm font-mono text-gray-900">
+                    <p className="text-sm font-mono text-foreground">
                       {selectedPayment.reference}
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
                     Payment Proof
                   </p>
                   {selectedPayment.proofUrl ? (
-                    <div className="rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="rounded-xl border border-border overflow-hidden">
                       <Image
                         src={selectedPayment.proofUrl}
                         alt="Payment proof"
                         width={400}
                         height={300}
-                        className="w-full h-auto max-h-75 object-contain bg-gray-50"
+                        className="w-full h-auto max-h-75 object-contain bg-muted/20"
                       />
                     </div>
                   ) : (
-                    <div className="rounded-xl border border-gray-200 p-8 text-center">
-                      <p className="text-sm text-gray-400">
+                    <div className="rounded-xl border border-border p-8 text-center">
+                      <p className="text-sm text-muted-foreground">
                         No payment proof submitted
                       </p>
                     </div>

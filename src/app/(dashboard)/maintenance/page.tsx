@@ -45,8 +45,8 @@ export default function MaintenancePage() {
       <div className="p-6 lg:p-8 space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Maintenance Requests</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl font-bold text-foreground">Maintenance Requests</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               {user?.role === "landlord"
                 ? "Track and manage property maintenance issues."
                 : "Report issues and stay updated on repairs."}

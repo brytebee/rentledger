@@ -187,7 +187,6 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!tenantProfile) {
-    console.log("[POST /api/tenants] No profile found for", normalizedPhone);
     return NextResponse.json(
       {
         error: "User not found. They must register on the app first.",
@@ -196,8 +195,6 @@ export async function POST(req: NextRequest) {
       { status: 404 },
     );
   }
-
-  console.log("[POST /api/tenants] Found tenant profile:", tenantProfile.id);
 
   // Create pending tenancy
   const { data: tenancy, error: tenancyError } = await supabase
@@ -217,8 +214,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: tenancyError.message }, { status: 500 });
   }
 
-  console.log("[POST /api/tenants] Tenancy created:", tenancy.id, ". Sending notification...");
-
   // Send notification to tenant
   await createNotification({
     userId: tenantProfile.id,
@@ -227,8 +222,6 @@ export async function POST(req: NextRequest) {
     type: "tenancy",
     data: { tenancy_id: tenancy.id },
   });
-
-  console.log("[POST /api/tenants] invitation flow completed for", normalizedPhone);
 
   return NextResponse.json(
     {

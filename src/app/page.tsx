@@ -38,17 +38,17 @@ function FeatureCard({
   bullets,
 }: FeatureCardProps) {
   return (
-    <Card className="group relative overflow-hidden border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 bg-white">
+    <Card className="group relative overflow-hidden border border-border rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 bg-card">
       {/* Top gradient bar on hover */}
-      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-linear-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       <CardHeader className="pb-0 pt-8 px-8">
         <div
           className={`w-14 h-14 rounded-[14px] flex items-center justify-center mb-6 ${iconBg}`}
         >
           {icon}
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-3">{title}</h3>
-        <p className="text-[0.9375rem] text-gray-500 leading-relaxed font-[Roboto,sans-serif]">
+        <h3 className="text-lg font-bold text-foreground mb-3">{title}</h3>
+        <p className="text-[0.9375rem] text-muted-foreground leading-relaxed font-[Roboto,sans-serif]">
           {description}
         </p>
       </CardHeader>
@@ -57,9 +57,9 @@ function FeatureCard({
           {bullets.map((b) => (
             <li
               key={b}
-              className="flex items-center gap-2 text-sm text-gray-700"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
             >
-              <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" />
               {b}
             </li>
           ))}
@@ -75,8 +75,8 @@ function Step({ num, title, description }: StepProps) {
       <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-blue-500 to-violet-500 text-white text-lg font-extrabold flex items-center justify-center mx-auto mb-4">
         {num}
       </div>
-      <h4 className="text-base font-bold text-gray-900 mb-2">{title}</h4>
-      <p className="text-sm text-gray-500 leading-relaxed font-[Roboto,sans-serif]">
+      <h4 className="text-base font-bold text-foreground mb-2">{title}</h4>
+      <p className="text-sm text-muted-foreground leading-relaxed font-[Roboto,sans-serif]">
         {description}
       </p>
     </div>
@@ -88,25 +88,25 @@ function Step({ num, title, description }: StepProps) {
 function DashboardPreview() {
   return (
     <div className="max-w-5xl mx-auto px-6 pb-20">
-      <div className="bg-linear-to-br from-gray-50 to-blue-50 border border-gray-200 rounded-[20px] p-8 shadow-xl flex flex-wrap gap-6 items-start justify-center relative overflow-hidden">
+      <div className="bg-muted border border-border rounded-[20px] p-8 shadow-xl flex flex-wrap gap-6 items-start justify-center relative overflow-hidden">
         {/* Decorative blob */}
         <div className="absolute top-[-60px] right-[-60px] w-56 h-56 bg-violet-200/30 rounded-full blur-3xl pointer-events-none" />
 
         {/* Revenue card */}
-        <Card className="rounded-2xl border border-gray-200 shadow-md bg-white min-w-[180px] flex-1 max-w-[220px]">
+        <Card className="rounded-2xl border border-border shadow-md bg-card min-w-[180px] flex-1 max-w-[220px]">
           <CardContent className="p-5">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-900 leading-none">
+                <p className="text-xs font-semibold text-foreground leading-none">
                   Total Revenue
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">This month</p>
+                <p className="text-xs text-muted-foreground mt-0.5">This month</p>
               </div>
             </div>
-            <p className="text-2xl font-extrabold tracking-tight text-gray-900">
+            <p className="text-2xl font-extrabold tracking-tight text-foreground">
               ₦420,000
             </p>
             <Badge className="mt-2 text-[10px] font-semibold bg-green-100 text-green-700 hover:bg-green-100 border-0 rounded-full">
@@ -116,17 +116,17 @@ function DashboardPreview() {
         </Card>
 
         {/* Payments list card */}
-        <Card className="rounded-2xl border border-gray-200 shadow-md bg-white min-w-[220px] flex-1 max-w-[280px]">
+        <Card className="rounded-2xl border border-border shadow-md bg-card min-w-[220px] flex-1 max-w-[280px]">
           <CardContent className="p-5">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-violet-500" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-900 leading-none">
+                <p className="text-xs font-semibold text-foreground leading-none">
                   Recent Payments
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">All units</p>
+                <p className="text-xs text-muted-foreground mt-0.5">All units</p>
               </div>
             </div>
             <div className="space-y-0 divide-y divide-gray-100">
@@ -151,7 +151,7 @@ function DashboardPreview() {
                   key={row.name}
                   className="flex items-center justify-between py-2.5"
                 >
-                  <span className="text-[0.8125rem] font-medium text-gray-700">
+                  <span className="text-[0.8125rem] font-medium text-muted-foreground">
                     {row.name}
                   </span>
                   <span
@@ -166,20 +166,20 @@ function DashboardPreview() {
         </Card>
 
         {/* Outstanding card */}
-        <Card className="rounded-2xl border border-gray-200 shadow-md bg-white min-w-[180px] flex-1 max-w-[220px]">
+        <Card className="rounded-2xl border border-border shadow-md bg-card min-w-[180px] flex-1 max-w-[220px]">
           <CardContent className="p-5">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
                 <Users className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-900 leading-none">
+                <p className="text-xs font-semibold text-foreground leading-none">
                   Outstanding
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">Needs attention</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Needs attention</p>
               </div>
             </div>
-            <p className="text-2xl font-extrabold tracking-tight text-gray-900">
+            <p className="text-2xl font-extrabold tracking-tight text-foreground">
               ₦85,000
             </p>
             <Badge className="mt-2 text-[10px] font-semibold bg-red-100 text-red-700 hover:bg-red-100 border-0 rounded-full">
@@ -196,7 +196,7 @@ function DashboardPreview() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-[Inter,sans-serif] antialiased">
+    <div className="min-h-screen bg-background text-foreground font-[Inter,sans-serif] antialiased transition-colors duration-500">
       {/* ── Navigation ── */}
       <LandingNav />
 
@@ -214,15 +214,15 @@ export default function LandingPage() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black tracking-[-0.03em] leading-[1.05] text-gray-900 mb-5 max-w-[700px] mx-auto">
+        <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black tracking-[-0.03em] leading-[1.05] text-foreground mb-5 max-w-[700px] mx-auto">
           <span className="block">RentLedger</span>
-          <span className="bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
             Smart rent tracking
           </span>
         </h1>
 
         {/* Tagline */}
-        <p className="font-[Roboto,sans-serif] text-[clamp(1rem,2.5vw,1.25rem)] text-gray-500 max-w-[520px] mx-auto mb-10 leading-[1.7]">
+        <p className="font-[Roboto,sans-serif] text-[clamp(1rem,2.5vw,1.25rem)] text-muted-foreground max-w-[520px] mx-auto mb-10 leading-[1.7]">
           Smart rent tracking for landlords and tenants. Replace notebooks and
           WhatsApp threads with structured dashboards that just work.
         </p>
@@ -262,10 +262,10 @@ export default function LandingPage() {
               <div key={i} className="w-px h-9 bg-gray-200 hidden sm:block" />
             ) : (
               <div key={i} className="text-center">
-                <p className="text-2xl font-extrabold tracking-tight text-gray-900">
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
                   {item.num}
                 </p>
-                <p className="text-[0.8125rem] text-gray-400 mt-0.5 font-[Roboto,sans-serif]">
+                <p className="text-[0.8125rem] text-muted-foreground mt-0.5 font-[Roboto,sans-serif]">
                   {item.label}
                 </p>
               </div>
@@ -278,14 +278,14 @@ export default function LandingPage() {
       <DashboardPreview />
 
       {/* ── Features ── */}
-      <section className="bg-gray-50 px-6 py-20">
+      <section className="bg-muted/50 px-6 py-20">
         <p className="text-center text-[0.8125rem] font-bold uppercase tracking-[0.08em] text-blue-500 mb-3">
           What we offer
         </p>
-        <h2 className="text-center text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold tracking-tight text-gray-900 mb-4">
+        <h2 className="text-center text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold tracking-tight text-foreground mb-4">
           Everything you need to manage rent
         </h2>
-        <p className="text-center font-[Roboto,sans-serif] text-[1.0625rem] text-gray-500 max-w-[480px] mx-auto mb-14 leading-[1.7]">
+        <p className="text-center font-[Roboto,sans-serif] text-[1.0625rem] text-muted-foreground max-w-[480px] mx-auto mb-14 leading-[1.7]">
           From property setup to payment tracking — RentLedger handles it all so
           you can focus on what matters.
         </p>
@@ -332,10 +332,10 @@ export default function LandingPage() {
         <p className="text-center text-[0.8125rem] font-bold uppercase tracking-[0.08em] text-blue-500 mb-3">
           How it works
         </p>
-        <h2 className="text-center text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold tracking-tight text-gray-900 mb-4">
+        <h2 className="text-center text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold tracking-tight text-foreground mb-4">
           Up and running in minutes
         </h2>
-        <p className="text-center font-[Roboto,sans-serif] text-[1.0625rem] text-gray-500 max-w-[420px] mx-auto mb-14 leading-[1.7]">
+        <p className="text-center font-[Roboto,sans-serif] text-[1.0625rem] text-muted-foreground max-w-[420px] mx-auto mb-14 leading-[1.7]">
           Four simple steps to replace your notebook forever.
         </p>
 
@@ -399,7 +399,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-gray-200 px-6 py-8">
+      <footer className="border-t border-border px-6 py-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-4">
           {/* Logo */}
           <Link

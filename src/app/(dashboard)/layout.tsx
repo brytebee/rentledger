@@ -34,7 +34,7 @@ export default async function DashboardLayout({
 
   return (
     <UserProvider user={user}>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-background flex transition-colors duration-500">
         <Sidebar user={user} />
         <main className="flex-1 min-w-0 flex flex-col">
           <div className="flex-1 pb-22 lg:pb-0">{children}</div>

@@ -110,13 +110,13 @@ function ProfileTab() {
   }
 
   return (
-    <Card className="rounded-3xl border border-gray-200 shadow-sm">
-      <CardHeader className="pb-4 border-b border-gray-100 flex flex-row items-center justify-between">
+    <Card className="rounded-3xl border border-border bg-card shadow-sm">
+      <CardHeader className="pb-4 border-b border-border flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-xl font-bold text-gray-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             My Profile
           </CardTitle>
-          <CardDescription className="text-sm text-gray-500 mt-1">
+          <CardDescription className="text-sm text-muted-foreground mt-1">
             Manage your personal information
           </CardDescription>
         </div>
@@ -134,20 +134,20 @@ function ProfileTab() {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-lg shadow-blue-200">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <User className="w-10 h-10 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-bold text-foreground">
               {profile?.full_name || "Your Name"}
             </h3>
-            <p className="text-sm text-gray-500 capitalize">{profile?.role}</p>
+            <p className="text-sm text-muted-foreground capitalize">{profile?.role}</p>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               Full Name
             </label>
             {isEditing ? (
@@ -163,45 +163,45 @@ function ProfileTab() {
                 />
               </div>
             ) : (
-              <p className="text-sm text-gray-900 bg-gray-50 rounded-lg px-4 py-3">
-                {profile?.full_name || "Not set"}
-              </p>
+                <p className="text-sm text-foreground bg-muted rounded-lg px-4 py-3 border border-border/50">
+                  {profile?.full_name || "Not set"}
+                </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 value={profile?.email || ""}
                 disabled
-                className="pl-10 h-11 rounded-[10px] border-gray-200 bg-gray-50 text-gray-500"
+                className="pl-10 h-11 rounded-[10px] border-border bg-muted text-muted-foreground"
               />
             </div>
-            <p className="text-xs text-gray-400">Email cannot be changed</p>
+            <p className="text-xs text-muted-foreground">Email cannot be changed</p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               Phone Number
             </label>
             {isEditing ? (
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   value={formData.phone_number}
                   onChange={(e) =>
                     setFormData({ ...formData, phone_number: e.target.value })
                   }
                   placeholder="Enter your phone number"
-                  className="pl-10 h-11 rounded-[10px] border-gray-200 focus-visible:border-blue-500"
+                  className="pl-10 h-11 rounded-[10px] border-border bg-card focus-visible:border-blue-500"
                 />
               </div>
             ) : (
-              <p className="text-sm text-gray-900 bg-gray-50 rounded-lg px-4 py-3">
+              <p className="text-sm text-foreground bg-muted rounded-lg px-4 py-3 border border-border/50">
                 {profile?.phone_number || "Not set"}
               </p>
             )}
@@ -209,11 +209,11 @@ function ProfileTab() {
 
           {profile?.created_at && (
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-semibold text-foreground/80">
                 Member Since
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   value={new Date(profile.created_at).toLocaleDateString(
                     "en-US",
@@ -224,7 +224,7 @@ function ProfileTab() {
                     },
                   )}
                   disabled
-                  className="pl-10 h-11 rounded-[10px] border-gray-200 bg-gray-50 text-gray-500"
+                  className="pl-10 h-11 rounded-[10px] border-border bg-muted text-muted-foreground"
                 />
               </div>
             </div>
@@ -306,13 +306,13 @@ function PasswordTab() {
   };
 
   return (
-    <Card className="rounded-3xl border border-gray-200 shadow-sm">
-      <CardHeader className="pb-4 border-b border-gray-100">
-        <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+    <Card className="rounded-3xl border border-border bg-card shadow-sm">
+      <CardHeader className="pb-4 border-b border-border">
+        <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
           <Lock className="w-5 h-5 text-blue-500" />
           Change Password
         </CardTitle>
-        <CardDescription className="text-sm text-gray-500 mt-1">
+        <CardDescription className="text-sm text-muted-foreground mt-1">
           Update your password to keep your account secure
         </CardDescription>
       </CardHeader>
@@ -328,7 +328,7 @@ function PasswordTab() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               Current Password
             </label>
             <div className="relative">
@@ -342,13 +342,13 @@ function PasswordTab() {
                   })
                 }
                 placeholder="Enter current password"
-                className="pr-10 h-11 rounded-[10px] border-gray-200 focus-visible:border-blue-500"
+                className="pr-10 h-11 rounded-[10px] border-border bg-card focus-visible:border-blue-500"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showCurrent ? (
                   <EyeOff className="w-4 h-4" />
@@ -360,7 +360,7 @@ function PasswordTab() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               New Password
             </label>
             <div className="relative">
@@ -371,13 +371,13 @@ function PasswordTab() {
                   setFormData({ ...formData, new_password: e.target.value })
                 }
                 placeholder="Enter new password"
-                className="pr-10 h-11 rounded-[10px] border-gray-200 focus-visible:border-blue-500"
+                className="pr-10 h-11 rounded-[10px] border-border bg-card focus-visible:border-blue-500"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showNew ? (
                   <EyeOff className="w-4 h-4" />
@@ -386,13 +386,13 @@ function PasswordTab() {
                 )}
               </button>
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               Must be at least 6 characters
             </p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground/80">
               Confirm New Password
             </label>
             <div className="relative">
@@ -406,7 +406,7 @@ function PasswordTab() {
                   })
                 }
                 placeholder="Confirm new password"
-                className="pr-10 h-11 rounded-[10px] border-gray-200 focus-visible:border-blue-500"
+                className="pr-10 h-11 rounded-[10px] border-border bg-card focus-visible:border-blue-500"
                 required
               />
               <button
@@ -472,22 +472,22 @@ function SettingsTab() {
   };
 
   return (
-    <Card className="rounded-3xl border border-gray-200 shadow-sm">
-      <CardHeader className="pb-4 border-b border-gray-100">
-        <CardTitle className="text-xl font-bold text-gray-900">
+    <Card className="rounded-3xl border border-border bg-card shadow-sm">
+      <CardHeader className="pb-4 border-b border-border">
+        <CardTitle className="text-xl font-bold text-foreground">
           Account Settings
         </CardTitle>
-        <CardDescription className="text-sm text-gray-500 mt-1">
+        <CardDescription className="text-sm text-muted-foreground mt-1">
           Manage your notification preferences
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-foreground">
               Notification Refresh
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               How often should notifications auto-refresh
             </p>
           </div>
@@ -495,7 +495,7 @@ function SettingsTab() {
             value={String(refreshInterval / 60000)}
             onValueChange={handleRefreshIntervalChange}
           >
-            <SelectTrigger className="w-full h-11 rounded-xl">
+            <SelectTrigger className="w-full h-11 rounded-xl border-border bg-card">
               <SelectValue placeholder="Select refresh interval" />
             </SelectTrigger>
             <SelectContent>
@@ -509,18 +509,18 @@ function SettingsTab() {
           </Select>
         </div>
 
-        <div className="border-t border-gray-100 pt-6 space-y-4">
+        <div className="border-t border-border pt-6 space-y-4">
           <div>
-            <p className="text-sm font-semibold text-gray-900 mb-3">
+            <p className="text-sm font-semibold text-foreground mb-3">
               Upcoming Features
             </p>
           </div>
           <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-foreground">
                 Email Notifications
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Receive email updates about your account
               </p>
             </div>
@@ -534,10 +534,10 @@ function SettingsTab() {
           </div>
           <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-foreground">
                 SMS Notifications
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Receive text messages for important updates
               </p>
             </div>
@@ -564,24 +564,24 @@ export default function AccountPage() {
       <TopBar title="Account" user={headerUser} />
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto w-full">
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-gray-100 p-1 rounded-[10px] h-auto gap-1">
+          <TabsList className="bg-muted p-1 rounded-[10px] h-auto gap-1 border border-border/50">
             <TabsTrigger
               value="profile"
-              className="rounded-xl text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-4 py-2"
+              className="rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:text-blue-500 data-[state=active]:shadow-sm px-4 py-2"
             >
               <User className="w-4 h-4 mr-2" />
               Profile
             </TabsTrigger>
             <TabsTrigger
               value="password"
-              className="rounded-xl text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-4 py-2"
+              className="rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:text-blue-500 data-[state=active]:shadow-sm px-4 py-2"
             >
               <Lock className="w-4 h-4 mr-2" />
               Password
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="rounded-xl text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-4 py-2"
+              className="rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:text-blue-500 data-[state=active]:shadow-sm px-4 py-2"
             >
               Settings
             </TabsTrigger>

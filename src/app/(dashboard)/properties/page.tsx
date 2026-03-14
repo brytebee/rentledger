@@ -108,7 +108,7 @@ export default function PropertiesPage() {
           action={
             <Button
               onClick={() => setDialogOpen(true)}
-              className="h-10 px-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm gap-2 hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-px transition-all"
+              className="h-10 px-5 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-black text-sm gap-2 shadow-xl shadow-foreground/10"
             >
               <Plus className="w-4 h-4" />
               Add Property
@@ -124,19 +124,19 @@ export default function PropertiesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search properties..."
-              className="pl-9 h-11 rounded-xl border-gray-200 text-sm focus-visible:border-blue-500 bg-white"
+              className="pl-9 h-11 rounded-xl border-border text-sm focus-visible:border-blue-500 bg-card"
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[140px] h-11 rounded-xl border-gray-200 text-sm bg-white gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-gray-400" />
+            <SelectTrigger className="w-[160px] h-11 rounded-xl border-border text-sm bg-card gap-2 font-bold">
+              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-[10px]">
-              <SelectItem value="all">All Properties</SelectItem>
-              <SelectItem value="overdue">Has Overdue</SelectItem>
-              <SelectItem value="pending">Has Pending</SelectItem>
-              <SelectItem value="vacant">Vacant</SelectItem>
+            <SelectContent className="rounded-2xl border-border bg-card shadow-2xl p-2">
+              <SelectItem value="all" className="rounded-xl font-bold">All Properties</SelectItem>
+              <SelectItem value="overdue" className="rounded-xl font-bold">Has Overdue</SelectItem>
+              <SelectItem value="pending" className="rounded-xl font-bold">Has Pending</SelectItem>
+              <SelectItem value="vacant" className="rounded-xl font-bold">Vacant</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -155,19 +155,19 @@ export default function PropertiesPage() {
           <div className="space-y-4">
             <Alert
               variant="destructive"
-              className="border-red-200 bg-red-50 rounded-2xl"
+              className="border-red-500/20 bg-red-500/10 rounded-2xl"
             >
-              <AlertTitle className="font-semibold">
+              <AlertTitle className="font-black tracking-tight text-red-500">
                 Failed to load properties
               </AlertTitle>
-              <AlertDescription className="text-sm mt-1">
+              <AlertDescription className="text-sm mt-1 text-red-500 font-medium">
                 {error}
               </AlertDescription>
             </Alert>
             <Button
               onClick={() => fetchProperties(pagination.page)}
               variant="outline"
-              className="rounded-xl border-gray-200 gap-2"
+              className="rounded-xl border-border gap-2 font-bold"
             >
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -178,21 +178,21 @@ export default function PropertiesPage() {
         {/* Empty — no properties at all */}
         {!loading && !error && properties.length === 0 && !search.trim() && filter === "all" && (
           <div className="flex flex-col items-center justify-center min-h-[45vh] text-center">
-            <div className="w-20 h-20 bg-blue-50 rounded-[20px] flex items-center justify-center mb-6 shadow-sm">
-              <Building2 className="w-10 h-10 text-blue-400" />
+            <div className="w-24 h-24 bg-muted/40 rounded-[32px] flex items-center justify-center mb-8 border border-border/50">
+              <Building2 className="w-10 h-10 text-blue-500" />
             </div>
-            <h3 className="text-lg font-black tracking-[-0.02em] text-gray-900 mb-2">
+            <h3 className="text-xl font-black tracking-tight text-foreground mb-3 leading-tight">
               No properties yet
             </h3>
-            <p className="text-sm text-gray-500 max-w-xs mb-6 font-[Roboto,sans-serif] leading-relaxed">
+            <p className="text-sm text-muted-foreground max-w-[280px] mb-8 font-medium leading-relaxed">
               Add your first property to start tracking units, tenants, and rent
               payments.
             </p>
             <Button
               onClick={() => setDialogOpen(true)}
-              className="h-11 px-6 rounded-[10px] bg-blue-500 hover:bg-blue-600 text-white font-semibold gap-2 shadow-sm hover:shadow-md hover:shadow-blue-200 transition-all"
+              className="h-14 px-10 rounded-2xl bg-foreground text-background hover:bg-foreground/90 font-black gap-2 shadow-xl shadow-foreground/10"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               Add Your First Property
             </Button>
           </div>
@@ -205,10 +205,10 @@ export default function PropertiesPage() {
           (search.trim() || filter !== "all") && (
             <div className="text-center py-16">
               <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-gray-700 mb-1">
+              <p className="text-sm font-semibold text-foreground mb-1">
                 No results found
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Try adjusting your search or filter.
               </p>
             </div>

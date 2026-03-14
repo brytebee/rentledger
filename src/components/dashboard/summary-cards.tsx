@@ -52,7 +52,7 @@ function StatCard({
   return (
     <Card
       className={cn(
-        "rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-card shadow-sm hover:shadow-md transition-all duration-200",
+        "rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-200",
         "border-t-[3px]",
         accentBorder,
       )}
@@ -88,7 +88,7 @@ export function SummaryCards({ summary, loading }: SummaryCardsProps) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[...Array(5)].map((_, i) => (
-          <Card key={i} className="rounded-2xl">
+          <Card key={i} className="rounded-2xl border-border bg-card">
             <CardContent className="p-5">
               <Skeleton className="w-10 h-10 rounded-[10px] mb-4" />
               <Skeleton className="w-20 h-4 mb-2" />

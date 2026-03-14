@@ -40,19 +40,19 @@ interface PaginationState {
 const statusCfg = {
   active: {
     label: "Active",
-    cls: "bg-green-100 text-green-700 border-green-200",
+    cls: "bg-green-500/10 text-green-500 border-green-500/20",
   },
   pending: {
     label: "Pending",
-    cls: "bg-amber-100 text-amber-700 border-amber-200",
+    cls: "bg-amber-500/10 text-amber-500 border-amber-500/20",
   },
   rejected: {
     label: "Declined",
-    cls: "bg-red-100 text-red-700 border-red-200",
+    cls: "bg-red-500/10 text-red-500 border-red-500/20",
   },
   terminated: {
     label: "Ended",
-    cls: "bg-gray-100 text-gray-500 border-gray-200",
+    cls: "bg-muted text-muted-foreground border-border",
   },
 };
 
@@ -67,7 +67,7 @@ const avatarColors = [
 function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
   const cfg = statusCfg[tenant.status] ?? statusCfg.terminated;
   return (
-    <Card className="group rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
+    <Card className="group rounded-2xl border border-border bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <div
@@ -77,7 +77,7 @@ function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm font-bold text-gray-900 truncate">
+              <p className="text-sm font-bold text-foreground truncate">
                 {tenant.fullName}
               </p>
               <span
@@ -89,13 +89,13 @@ function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
                 {cfg.label}
               </span>
             </div>
-            <p className="text-xs text-gray-400 font-[Roboto,sans-serif] mt-0.5 truncate">
+            <p className="text-xs text-muted-foreground font-[Roboto,sans-serif] mt-0.5 truncate">
               {tenant.unitLabel} · {tenant.propertyName}
             </p>
           </div>
           {tenant.outstandingBalance > 0 && (
             <div className="text-right shrink-0">
-              <p className="text-xs text-gray-400 font-[Roboto,sans-serif]">
+              <p className="text-xs text-muted-foreground font-[Roboto,sans-serif]">
                 Outstanding
               </p>
               <p className="text-sm font-bold text-red-600">
@@ -111,7 +111,7 @@ function TenantCard({ tenant, index }: { tenant: TenantItem; index: number }) {
 
 function TenantCardSkeleton() {
   return (
-    <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <Card className="rounded-2xl border border-border bg-card shadow-sm">
       <CardContent className="p-4 flex items-center gap-3">
         <Skeleton className="w-10 h-10 rounded-full shrink-0" />
         <div className="flex-1 space-y-2">
@@ -232,19 +232,19 @@ export default function TenantsPage() {
           subtitle={`${pagination.total} tenant${pagination.total !== 1 ? "s" : ""}`}
           user={headerUser}
           action={
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => fetchTenants(pagination.page)}
-                className="h-10 rounded-xl px-3 border-gray-200 hover:bg-gray-50 text-gray-600"
+                className="h-10 w-10 rounded-xl p-0 border-border bg-card hover:bg-muted text-muted-foreground"
                 title="Refresh list"
               >
                 <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
               </Button>
               <Button
                 onClick={() => setDialogOpen(true)}
-                className="h-10 px-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm gap-2 hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-px transition-all"
+                className="h-10 px-5 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-black text-sm gap-2 shadow-xl shadow-foreground/10"
               >
                 <Plus className="w-4 h-4" />
                 Add Tenant
@@ -260,7 +260,7 @@ export default function TenantsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tenants, units, properties…"
-            className="pl-9 h-11 rounded-xl border-gray-200 text-sm focus-visible:border-blue-500 bg-white"
+            className="pl-9 h-11 rounded-xl border-border text-sm focus-visible:border-blue-500 bg-card"
           />
         </div>
 
@@ -275,15 +275,15 @@ export default function TenantsPage() {
           <div className="space-y-4">
             <Alert
               variant="destructive"
-              className="border-red-200 bg-red-50 rounded-2xl"
+              className="border-red-500/20 bg-red-500/10 rounded-2xl"
             >
-              <AlertTitle className="font-semibold">Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle className="font-black tracking-tight text-red-500">Error</AlertTitle>
+              <AlertDescription className="text-sm font-medium text-red-500">{error}</AlertDescription>
             </Alert>
             <Button
               onClick={() => fetchTenants(pagination.page)}
               variant="outline"
-              className="rounded-xl gap-2"
+              className="rounded-xl border-border bg-card hover:bg-muted gap-2 font-bold"
             >
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -292,20 +292,20 @@ export default function TenantsPage() {
         )}
         {!loading && !error && tenants.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[45vh] text-center">
-            <div className="w-20 h-20 bg-green-50 rounded-[20px] flex items-center justify-center mb-6 shadow-sm">
-              <Users className="w-10 h-10 text-green-400" />
+            <div className="w-24 h-24 bg-muted/40 rounded-[32px] flex items-center justify-center mb-8 border border-border/50">
+              <Users className="w-10 h-10 text-blue-500" />
             </div>
-            <h3 className="text-lg font-black tracking-[-0.02em] text-gray-900 mb-2">
+            <h3 className="text-xl font-black tracking-tight text-foreground mb-3 leading-tight">
               No tenants yet
             </h3>
-            <p className="text-sm text-gray-500 max-w-xs mb-6 font-[Roboto,sans-serif] leading-relaxed">
+            <p className="text-sm text-muted-foreground max-w-[280px] mb-8 font-medium leading-relaxed">
               Add tenants and assign them to units to start tracking rent.
             </p>
             <Button
               onClick={() => setDialogOpen(true)}
-              className="h-11 px-6 rounded-[10px] bg-blue-500 hover:bg-blue-600 text-white font-semibold gap-2 shadow-sm"
+              className="h-14 px-10 rounded-2xl bg-foreground text-background hover:bg-foreground/90 font-black gap-2 shadow-xl shadow-foreground/10"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               Add First Tenant
             </Button>
           </div>

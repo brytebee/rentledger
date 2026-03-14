@@ -58,10 +58,10 @@ export function TopBar({ title, user }: TopBarProps) {
       <div className="flex items-center justify-between h-16 px-4">
         {/* Left: Menu + Title */}
         <div className="flex items-center gap-3">
-          <button className=" max-sm:hidden p-2 -ml-2 text-gray-600 hover:text-gray-900">
+          <button className="max-sm:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">{title}</h1>
+          <h1 className="text-lg font-bold text-foreground">{title}</h1>
         </div>
 
         {/* Right: Notifications + Avatar */}
@@ -71,7 +71,7 @@ export function TopBar({ title, user }: TopBarProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+              <button className="flex items-center gap-2 p-1.5 rounded-full hover:bg-muted transition-colors">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user.avatarUrl} alt={user.name} />
                   <AvatarFallback className="bg-linear-to-br from-blue-500 to-violet-500 text-white text-xs font-bold">
@@ -84,13 +84,13 @@ export function TopBar({ title, user }: TopBarProps) {
             <DropdownMenuContent
               align="end"
               sideOffset={8}
-              className="w-56 rounded-2xl border border-gray-200 shadow-xl p-1.5"
+              className="w-56 rounded-2xl border border-border shadow-xl p-1.5 bg-card"
             >
               <DropdownMenuLabel className="px-2 py-1.5">
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-foreground">
                   {user.name}
                 </p>
-                <p className="text-xs text-gray-400 font-normal capitalize">
+                <p className="text-xs text-muted-foreground font-normal capitalize">
                   {user.role}
                 </p>
               </DropdownMenuLabel>

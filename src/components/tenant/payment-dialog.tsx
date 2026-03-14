@@ -49,15 +49,15 @@ function DropZone({
 
   if (file) {
     return (
-      <div className="flex items-center gap-3 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl">
-        <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-          <FileText className="w-4 h-4 text-blue-600" />
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+        <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center shrink-0">
+          <FileText className="w-4 h-4 text-blue-500" />
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">
+          <p className="text-sm font-semibold text-foreground truncate">
             {file.name}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             {(file.size / 1024).toFixed(0)} KB
           </p>
         </div>
@@ -65,9 +65,9 @@ function DropZone({
           type="button"
           onClick={() => onFile(null)}
           disabled={disabled}
-          className="w-6 h-6 rounded-full hover:bg-blue-200 flex items-center justify-center transition-colors"
+          className="w-6 h-6 rounded-full hover:bg-blue-500/20 flex items-center justify-center transition-colors"
         >
-          <X className="w-3.5 h-3.5 text-blue-600" />
+          <X className="w-3.5 h-3.5 text-blue-500" />
         </button>
       </div>
     );
@@ -97,19 +97,19 @@ function DropZone({
           "w-full border-2 border-dashed rounded-xl py-7 flex flex-col items-center gap-2.5",
           "transition-all duration-150 focus-visible:outline-none",
           over
-            ? "border-blue-400 bg-blue-50/70 scale-[1.01]"
-            : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/40",
+            ? "border-blue-400 bg-blue-500/10 scale-[1.01]"
+            : "border-border bg-muted/30 hover:border-blue-500/50 hover:bg-blue-500/5",
           disabled && "opacity-50 pointer-events-none",
         )}
       >
-        <span className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center">
-          <Upload className="w-5 h-5 text-gray-400" />
+        <span className="w-11 h-11 bg-muted rounded-full flex items-center justify-center">
+          <Upload className="w-5 h-5 text-muted-foreground" />
         </span>
         <div className="text-center">
-          <p className="text-sm font-semibold text-gray-700">
+          <p className="text-sm font-semibold text-foreground">
             Upload payment proof
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             PNG, JPG or PDF · max 5 MB
           </p>
         </div>
@@ -200,20 +200,20 @@ export function PaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="sm:max-w-105 p-0 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden gap-0">
+      <DialogContent className="sm:max-w-105 p-0 rounded-2xl border border-border shadow-2xl overflow-hidden gap-0 bg-card">
         <div className={cn("px-6 pt-6 pb-5 bg-linear-to-br", s.dialogBg)}>
           <DialogHeader className="space-y-1">
-            <DialogTitle className="text-[22px] font-black tracking-tight text-gray-900 leading-none">
+            <DialogTitle className="text-[22px] font-black tracking-tight text-foreground leading-none">
               {isOverdue ? "Rent Overdue" : "Rent Due"}
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 leading-snug">
+            <DialogDescription className="text-sm text-muted-foreground leading-snug">
               Submit proof for your landlord to verify your payment.
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-5 flex items-end justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Amount Due
               </p>
               <p
@@ -226,8 +226,8 @@ export function PaymentDialog({
               </p>
             </div>
             <div className="text-right pb-1">
-              <p className="text-[11px] text-gray-400 mb-1">Due date</p>
-              <p className="text-sm font-bold text-gray-700 tabular-nums">
+              <p className="text-[11px] text-muted-foreground mb-1">Due date</p>
+              <p className="text-sm font-bold text-foreground tabular-nums">
                 {fmtDate(rentInfo.nextDueDate, {
                   month: "long",
                   day: "numeric",
@@ -238,30 +238,30 @@ export function PaymentDialog({
           </div>
         </div>
 
-        <form onSubmit={submit} className="px-6 pt-5 pb-6 space-y-4 bg-white">
+        <form onSubmit={submit} className="px-6 pt-5 pb-6 space-y-4 bg-card">
           {err && (
             <Alert
               variant="destructive"
-              className="border-red-200 bg-red-50 rounded-xl py-3 gap-2"
+              className="border-red-500/20 bg-red-500/10 rounded-xl py-3 gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
-              <AlertDescription className="text-xs leading-relaxed">
+              <AlertDescription className="text-xs leading-relaxed text-red-500">
                 {err}
               </AlertDescription>
             </Alert>
           )}
 
           {done && (
-            <div className="flex items-center gap-2.5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <p className="text-xs font-semibold text-emerald-700">
+            <div className="flex items-center gap-2.5 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <p className="text-xs font-semibold text-emerald-500">
                 Submitted! Awaiting landlord verification.
               </p>
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-bold text-gray-700 block">
+            <Label className="text-sm font-bold text-foreground block">
               Proof of Payment
             </Label>
             <DropZone file={file} onFile={setFile} disabled={busy || done} />
@@ -270,10 +270,10 @@ export function PaymentDialog({
           <div className="space-y-1.5">
             <Label
               htmlFor="dlg-ref"
-              className="text-sm font-bold text-gray-700"
+              className="text-sm font-bold text-foreground"
             >
               Reference / Transaction ID{" "}
-              <span className="font-normal text-gray-400">(optional)</span>
+              <span className="font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Input
               id="dlg-ref"
@@ -284,8 +284,8 @@ export function PaymentDialog({
               }}
               placeholder="e.g. TXN-0000000000"
               disabled={busy || done}
-              className="h-11 rounded-xl border-gray-200 text-sm
-                focus-visible:ring-1 focus-visible:ring-blue-400 focus-visible:border-blue-400"
+              className="h-11 rounded-xl border-border bg-muted/30 text-sm placeholder:text-muted-foreground/50
+                focus-visible:ring-1 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50"
             />
           </div>
 
@@ -295,7 +295,7 @@ export function PaymentDialog({
               variant="outline"
               onClick={() => close(false)}
               disabled={busy}
-              className="flex-1 h-11 rounded-xl border-gray-200 font-semibold text-gray-600"
+              className="flex-1 h-11 rounded-xl border-border bg-muted/20 font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground"
             >
               Cancel
             </Button>
@@ -307,8 +307,8 @@ export function PaymentDialog({
                 "transition-all hover:-translate-y-px active:translate-y-0",
                 "disabled:opacity-60 disabled:translate-y-0",
                 isOverdue
-                  ? "bg-red-500 hover:bg-red-600 shadow-red-200 hover:shadow-red-300"
-                  : "bg-blue-500 hover:bg-blue-600 shadow-blue-200 hover:shadow-blue-300",
+                  ? "bg-red-500 hover:bg-red-600 shadow-red-500/20 hover:shadow-red-500/40"
+                  : "bg-blue-500 hover:bg-blue-600 shadow-blue-500/20 hover:shadow-blue-500/40",
                 "hover:shadow-md",
               )}
             >

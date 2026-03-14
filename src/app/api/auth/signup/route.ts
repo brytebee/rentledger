@@ -29,8 +29,6 @@ export async function POST(req: NextRequest) {
     }
 
     const normalizedPhone = normalizePhoneNumber(phone);
-    console.log("[signup] raw phone:", phone);
-    console.log("[signup] normalized phone:", normalizedPhone);
 
     const { supabase } = createServerClient(req);
 

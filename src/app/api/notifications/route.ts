@@ -6,7 +6,6 @@ import { createNotification } from "@/lib/notifications"
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  console.log("[notifications] GET request received");
   try {
     const supabase = await createServerClient();
     
@@ -14,11 +13,9 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      console.log("[notifications] Unauthorized:", authError?.message || "No user found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("[notifications] Fetching for user:", user.id);
     const searchParams = req.nextUrl.searchParams;
     const unreadOnly = searchParams.get("unread") === "true";
 
@@ -40,7 +37,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log("[notifications] Found", data?.length || 0, "notifications");
 
     const { count, error: countError } = await supabase
       .from("notifications")
@@ -63,13 +59,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  console.log("[notifications] PATCH request received");
   try {
     const supabase = await createServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      console.log("[notifications] Unauthorized PATCH attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -77,7 +71,6 @@ export async function PATCH(req: NextRequest) {
     const { notification_id, mark_all_read, action, tenancy_id } = body;
 
     if (mark_all_read) {
-      console.log("[notifications] Marking all read for user:", user.id);
       const { error } = await supabase
         .from("notifications")
         .update({ read: true })
@@ -92,7 +85,6 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (notification_id) {
-      console.log("[notifications] Processing notification:", notification_id, "Action:", action);
       if (action === "accept" || action === "reject") {
         if (!tenancy_id) {
           return NextResponse.json({ error: "Tenancy ID required" }, { status: 400 });
@@ -170,7 +162,6 @@ export async function PATCH(req: NextRequest) {
           const propertyName = tenancy.units.properties.name;
           const tenantName = user.user_metadata?.full_name || user.email || "A tenant";
 
-          console.log(`[notifications] Creating loop-back notification for landlord: ${landlordId}`);
           
           await createNotification({
             userId: landlordId,
@@ -179,7 +170,6 @@ export async function PATCH(req: NextRequest) {
             type: "system",
           });
           
-          console.log("[notifications] Landlord notification created successfully");
         } else {
           console.error("[notifications] Could not find tenancy for loop-back notification:", tenancy_id);
         }

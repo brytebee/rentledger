@@ -169,12 +169,12 @@ export function RegisterForm() {
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         <RoleTabs value={role} onChange={handleRoleChange} />
 
-        <Separator className="bg-gray-100" />
+        <Separator className="bg-border" />
 
         {serverError && (
           <Alert
             variant="destructive"
-            className="border-red-200 bg-red-50 text-red-800 rounded-[10px] py-3"
+            className="border-red-500/20 bg-red-500/10 text-red-500 rounded-[10px] py-3"
           >
             <AlertTitle className="text-sm font-semibold leading-none mb-1">
               Authentication Error
@@ -235,7 +235,7 @@ export function RegisterForm() {
             disabled={loading || success}
             className="pl-10"
           />
-          <Phone className="absolute left-3 bottom-3.25 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Phone className="absolute left-3 bottom-3.25 w-4 h-4 text-muted-foreground pointer-events-none" />
         </div>
 
         <Button
@@ -259,7 +259,7 @@ export function RegisterForm() {
           )}
         </Button>
 
-        <p className="text-center text-[0.75rem] text-gray-400 font-[Roboto,sans-serif] leading-relaxed">
+        <p className="text-center text-[0.75rem] text-muted-foreground font-[Roboto,sans-serif] leading-relaxed">
           By clicking Continue, you agree to our{" "}
           <a
             href="/terms"
@@ -279,17 +279,17 @@ export function RegisterForm() {
       </form>
 
       <Dialog open={success} onOpenChange={setSuccess}>
-        <DialogContent className="sm:max-w-105 p-0 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
-          <DialogHeader className="pb-0">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+        <DialogContent className="sm:max-w-105 p-0 rounded-2xl border border-border shadow-2xl overflow-hidden bg-card">
+          <DialogHeader className="pb-0 pt-6 px-6">
+            <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-green-500" />
             </div>
-            <DialogTitle className="text-xl font-black text-center tracking-tight">
+            <DialogTitle className="text-xl font-black text-center tracking-tight text-foreground">
               Check your email
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 text-center leading-relaxed">
+            <DialogDescription className="text-sm text-muted-foreground text-center leading-relaxed">
               We&apos;ve sent a confirmation link to{" "}
-              <span className="font-semibold text-gray-700">
+              <span className="font-semibold text-foreground">
                 {registeredEmail}
               </span>
               .
@@ -299,14 +299,14 @@ export function RegisterForm() {
           </DialogHeader>
 
           <div className="px-6 pb-6 pt-2">
-            <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <div className="bg-muted rounded-xl p-4 mb-4 border border-border/50">
               <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-gray-700">
+                  <p className="font-medium text-foreground">
                     Didn&apos;t receive the email?
                   </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
+                  <p className="text-muted-foreground text-xs mt-0.5">
                     Check your spam folder, or{" "}
                     <button
                       type="button"

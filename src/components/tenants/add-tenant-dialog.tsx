@@ -184,16 +184,16 @@ export function AddTenantDialog({
         }
       }}
     >
-      <DialogContent className="w-[95vw] sm:max-w-112.5 max-h-[85vh] sm:max-h-[90vh] flex flex-col rounded-3xl p-0 border border-gray-200 shadow-2xl">
-        <div className="shrink-0 bg-linear-to-br from-green-50 to-white px-4 sm:px-6 pt-6 pb-5">
+      <DialogContent className="w-[95vw] sm:max-w-112.5 max-h-[85vh] sm:max-h-[90vh] flex flex-col rounded-3xl p-0 border border-border bg-card shadow-2xl">
+        <div className="shrink-0 bg-linear-to-br from-green-500/10 to-transparent px-4 sm:px-6 pt-6 pb-5 border-b border-border/50">
           <DialogHeader>
-            <div className="w-11 h-11 bg-green-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm shadow-green-200">
+            <div className="w-11 h-11 bg-green-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
               <UserPlus className="w-5 h-5 text-white" />
             </div>
-            <DialogTitle className="text-xl font-black tracking-[-0.025em]">
+            <DialogTitle className="text-xl font-black tracking-[-0.025em] text-foreground">
               Invite Tenant
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 mt-1">
+            <DialogDescription className="text-sm text-muted-foreground mt-1">
               Invite a tenant by their phone number. They must have an account on RentLedger first.
             </DialogDescription>
           </DialogHeader>
@@ -205,14 +205,14 @@ export function AddTenantDialog({
           {error && (
             <Alert
               variant="destructive"
-              className="border-red-200 bg-red-50 rounded-[10px] py-3"
+              className="border-red-500/20 bg-red-500/10 rounded-[10px] py-3"
             >
-              <AlertDescription className="text-xs">{error}</AlertDescription>
+              <AlertDescription className="text-xs text-red-500">{error}</AlertDescription>
             </Alert>
           )}
           {success && (
-            <Alert className="border-green-200 bg-green-50 rounded-[10px] py-3">
-              <AlertDescription className="text-xs text-green-700">
+            <Alert className="border-green-500/20 bg-green-500/10 rounded-[10px] py-3">
+              <AlertDescription className="text-xs text-green-500">
                 {success}
               </AlertDescription>
             </Alert>
@@ -221,7 +221,7 @@ export function AddTenantDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {!preSelectedPropertyId && (
               <div className="flex-1 space-y-1.5 w-full">
-                <Label className="text-sm font-semibold text-gray-700">
+                <Label className="text-sm font-semibold text-foreground/80">
                   Property <span className="text-red-500">*</span>
                 </Label>
                 <Select
@@ -233,7 +233,7 @@ export function AddTenantDialog({
                   }}
                 >
                   <SelectTrigger
-                    className={`h-11 w-full rounded-xl text-sm ${errors.propertyId ? "border-red-400" : "border-gray-200"}`}
+                    className={`h-11 w-full rounded-xl text-sm bg-muted/30 ${errors.propertyId ? "border-red-500/50" : "border-border"}`}
                   >
                     <SelectValue placeholder="Select a property" />
                   </SelectTrigger>
@@ -256,7 +256,7 @@ export function AddTenantDialog({
             <div
               className={`${preSelectedPropertyId ? "w-full" : "flex-1"} space-y-1.5`}
             >
-              <Label className="text-sm font-semibold text-gray-700">
+              <Label className="text-sm font-semibold text-foreground/80">
                 Unit <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -267,7 +267,7 @@ export function AddTenantDialog({
                 }}
               >
                 <SelectTrigger
-                  className={`h-11 w-full rounded-xl text-sm ${errors.unitId ? "border-red-400" : "border-gray-200"}`}
+                  className={`h-11 w-full rounded-xl text-sm bg-muted/30 ${errors.unitId ? "border-red-500/50" : "border-border"}`}
                   disabled={!propertyId || fetchingUnits}
                 >
                   <SelectValue
@@ -278,7 +278,7 @@ export function AddTenantDialog({
                 </SelectTrigger>
                 <SelectContent className="rounded-[10px]">
                   {units.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-gray-500">
+                    <div className="py-6 text-center text-sm text-muted-foreground">
                       No vacant units
                     </div>
                   ) : (
@@ -299,7 +299,7 @@ export function AddTenantDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-gray-700">
+            <Label className="text-sm font-semibold text-foreground/80">
               Tenant Phone <span className="text-red-500">*</span>
             </Label>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -317,7 +317,7 @@ export function AddTenantDialog({
                   onKeyDown={(e) =>
                     e.key === "Enter" && (e.preventDefault(), validatePhone())
                   }
-                  className={`h-11 rounded-xl text-sm pr-10 ${errors.phone ? "border-red-400 bg-red-50/40" : phoneValidated === "valid" ? "border-green-400 bg-green-50/40" : phoneValidated === "invalid" ? "border-red-400 bg-red-50/40" : "border-gray-200 focus-visible:border-green-500"}`}
+                  className={`h-11 rounded-xl text-sm pr-10 bg-muted/30 ${errors.phone ? "border-red-500/50 bg-red-500/5" : phoneValidated === "valid" ? "border-green-500/50 bg-green-500/5" : phoneValidated === "invalid" ? "border-red-500/50 bg-red-500/5" : "border-border focus-visible:border-green-500/50 placeholder:text-muted-foreground/50"}`}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                   {phoneValidated === "valid" && (
@@ -332,7 +332,7 @@ export function AddTenantDialog({
                 type="button"
                 onClick={validatePhone}
                 disabled={!phone.trim() || validating || loading}
-                className="cursor-pointer h-11 rounded-xl border-gray-200 px-4 text-sm font-medium whitespace-nowrap sm:w-auto w-full"
+                className="cursor-pointer h-11 rounded-xl border-border bg-muted/20 px-4 text-sm font-medium whitespace-nowrap sm:w-auto w-full hover:bg-muted/40 text-foreground"
               >
                 {validating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -356,14 +356,14 @@ export function AddTenantDialog({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-gray-700">
+              <Label className="text-sm font-semibold text-foreground/80">
                 Rent Cycle
               </Label>
               <Select
                 value={rentCycle}
                 onValueChange={(v) => setRentCycle(v as "monthly" | "annual")}
               >
-                <SelectTrigger className="h-11 w-full rounded-xl text-sm border-gray-200">
+                <SelectTrigger className="h-11 w-full rounded-xl text-sm border-border bg-muted/30">
                   <SelectValue placeholder="Select cycle" />
                 </SelectTrigger>
                 <SelectContent className="rounded-[10px]">
@@ -373,16 +373,16 @@ export function AddTenantDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-gray-700">
+              <Label className="text-sm font-semibold text-foreground/80">
                 Start Date{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
+                <span className="text-muted-foreground font-normal">(optional)</span>
               </Label>
               <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 disabled={loading}
-                className="h-11 rounded-xl text-sm border-gray-200 focus-visible:border-green-500"
+                className="h-11 rounded-xl text-sm border-border bg-muted/30 focus-visible:border-green-500/50 focus-visible:ring-1 focus-visible:ring-green-500/50"
               />
             </div>
           </div>
@@ -396,14 +396,14 @@ export function AddTenantDialog({
                 onOpenChange(false);
               }}
               disabled={loading}
-              className="flex-1 h-11 rounded-xl border-gray-200 font-semibold text-gray-600"
+              className="flex-1 h-11 rounded-xl border-border bg-muted/20 font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!canSubmit}
-              className="flex-1 h-11 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold gap-2 hover:shadow-lg hover:shadow-green-200 hover:-translate-y-px transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-1 h-11 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold gap-2 shadow-lg shadow-green-500/20 hover:shadow-green-500/40 hover:-translate-y-px transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0"
             >
               {loading ? (
                 <>

@@ -26,12 +26,12 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-      <div className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800 flex items-center justify-center shadow-sm">
-        <Icon className="w-8 h-8 text-gray-300 dark:text-zinc-500" />
+      <div className="w-16 h-16 rounded-3xl bg-muted border border-border flex items-center justify-center shadow-sm">
+        <Icon className="w-8 h-8 text-muted-foreground" />
       </div>
       <div className="space-y-1">
-        <h3 className="text-base font-bold text-gray-900 dark:text-zinc-100">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-zinc-400 max-w-xs mx-auto">{description}</p>
+        <h3 className="text-base font-bold text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-xs mx-auto">{description}</p>
       </div>
       {action}
     </div>
@@ -77,8 +77,8 @@ export function LandlordDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Dashboard</h1>
-          <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Welcome back! Here&apos;s your property overview.
           </p>
         </div>
@@ -97,15 +97,15 @@ export function LandlordDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentPayments payments={summary?.recentPayments ?? null} loading={loading} />
         <div className="space-y-6">
-          <Card className="rounded-[32px] border-gray-100 dark:border-border shadow-sm bg-white dark:bg-card overflow-hidden transition-colors">
+          <Card className="rounded-[32px] border-border shadow-sm bg-card overflow-hidden transition-colors">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
-                <CardTitle className="text-lg font-bold text-gray-900 dark:text-zinc-100">Recent Expenses</CardTitle>
-                <CardDescription className="text-xs dark:text-zinc-400">Your latest property costs</CardDescription>
+                <CardTitle className="text-lg font-bold text-foreground">Recent Expenses</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">Your latest property costs</CardDescription>
               </div>
               <Button 
                 variant="ghost" 
-                className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl" 
+                className="text-xs text-blue-500 font-bold hover:bg-blue-500/10 rounded-xl" 
                 onClick={() => window.location.href='/expenses'}
               >
                 View All
@@ -117,13 +117,13 @@ export function LandlordDashboard() {
                   [...Array(3)].map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-2xl" />)
                 ) : (summary as any)?.recentExpenses?.length > 0 ? (
                   (summary as any).recentExpenses.map((exp: any) => (
-                    <div key={exp.id} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/50 dark:bg-zinc-900/30 border border-gray-100/50 dark:border-zinc-800/50 hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors">
-                      <div className="space-y-0.5">
-                        <p className="text-xs font-bold text-gray-900 dark:text-zinc-100">{exp.category}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-zinc-500 uppercase tracking-widest">{format(new Date(exp.date), "MMM d")}</p>
+                      <div key={exp.id} className="flex items-center justify-between p-3 rounded-2xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors">
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-bold text-foreground">{exp.category}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{format(new Date(exp.date), "MMM d")}</p>
+                        </div>
+                        <p className="text-sm font-black text-red-500">-{formatCurrency(exp.amount)}</p>
                       </div>
-                      <p className="text-sm font-black text-red-600 dark:text-red-400">-{formatCurrency(exp.amount)}</p>
-                    </div>
                   ))
                 ) : (
                   <EmptyState 

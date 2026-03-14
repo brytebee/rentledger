@@ -45,19 +45,19 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-8">
+          <div className="bg-card rounded-2xl border border-border shadow-xl p-8">
             <div className="text-center">
-              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8 text-green-500" />
               </div>
-              <h1 className="text-xl font-black text-gray-900 mb-2">
+              <h1 className="text-xl font-black text-foreground mb-2">
                 Check Your Email
               </h1>
-              <p className="text-gray-500 text-sm mb-6">
+              <p className="text-muted-foreground text-sm mb-6">
                 We&apos;ve sent a password reset link to{" "}
-                <span className="font-semibold text-gray-700">{email}</span>.
+                <span className="font-semibold text-foreground">{email}</span>.
                 Click the link to reset your password.
               </p>
               <Button
@@ -77,17 +77,17 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-8">
+        <div className="bg-card rounded-2xl border border-border shadow-xl p-8">
           <div className="text-center mb-6">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <KeyRound className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <KeyRound className="w-6 h-6 text-blue-500" />
             </div>
-            <h1 className="text-xl font-black text-gray-900">
+            <h1 className="text-xl font-black text-foreground">
               Forgot Password?
             </h1>
-            <p className="text-gray-500 text-sm mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               No worries, we&apos;ll send you reset instructions.
             </p>
           </div>
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
           {error && (
             <Alert
               variant="destructive"
-              className="mb-4 border-red-200 bg-red-50 text-red-800 rounded-[10px] py-3"
+              className="mb-4 border-red-500/20 bg-red-500/10 text-red-500 rounded-[10px] py-3"
             >
               <AlertTitle className="text-sm font-semibold">Error</AlertTitle>
               <AlertDescription className="text-xs">{error}</AlertDescription>

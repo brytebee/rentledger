@@ -31,8 +31,8 @@ export function PropertyCard({
 }: PropertyCardProps) {
   return (
     <Link href={`/properties/${id}`}>
-      <Card className="group rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden">
-        <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <Card className="group rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden">
+        <div className="h-1 w-full bg-linear-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div className="flex items-start gap-3 min-w-0">
@@ -40,7 +40,7 @@ export function PropertyCard({
                 <Building2 className="w-5 h-5 text-blue-500" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
+                <h3 className="text-sm font-bold text-foreground leading-tight truncate">
                   {name}
                 </h3>
                 {address && (
@@ -55,12 +55,12 @@ export function PropertyCard({
             </div>
             <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-400 shrink-0 mt-0.5 transition-colors" />
           </div>
-          <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-3 pt-3 border-t border-border">
             <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 bg-gray-100 rounded-[6px] flex items-center justify-center">
+              <div className="w-6 h-6 bg-muted rounded-[6px] flex items-center justify-center">
                 <Building2 className="w-3 h-3 text-gray-500" />
               </div>
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {unitsCount} units
               </span>
             </div>
@@ -68,7 +68,7 @@ export function PropertyCard({
               <div className="w-6 h-6 bg-green-50 rounded-[6px] flex items-center justify-center">
                 <Users className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {activeTenants} tenants
               </span>
             </div>
@@ -89,7 +89,7 @@ export function PropertyCard({
                   pendingPayments === 0 ? "ml-auto" : "",
                 )}
               >
-                <span className="text-xs font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
                   {overduePayments} overdue
                 </span>
               </div>
@@ -103,7 +103,7 @@ export function PropertyCard({
 
 export function PropertyCardSkeleton() {
   return (
-    <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <Card className="rounded-2xl border border-border bg-card shadow-sm">
       <CardContent className="p-5">
         <div className="flex items-start gap-3 mb-4">
           <Skeleton className="w-10 h-10 rounded-[10px] shrink-0" />
@@ -112,7 +112,7 @@ export function PropertyCardSkeleton() {
             <Skeleton className="h-3 w-48" />
           </div>
         </div>
-        <div className="flex gap-3 pt-3 border-t border-gray-100">
+        <div className="flex gap-3 pt-3 border-t border-border">
           <Skeleton className="h-5 w-20 rounded-full" />
           <Skeleton className="h-5 w-20 rounded-full" />
         </div>

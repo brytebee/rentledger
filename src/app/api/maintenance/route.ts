@@ -14,12 +14,11 @@ export async function GET(req: NextRequest) {
   // Get user profile to check role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user.id)
     .single()
 
   const role = profile?.role || "tenant"
-  console.log(`[GET /api/maintenance] User: ${user.id}, Role: ${role}`)
 
   const searchParams = req.nextUrl.searchParams
   const status = searchParams.get("status")
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
   // Get user profile to check role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user.id)
     .single()
 

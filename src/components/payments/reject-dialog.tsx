@@ -69,17 +69,17 @@ export function RejectDialog({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[400px] rounded-[16px] p-0 border border-gray-200 shadow-2xl overflow-hidden">
-        <div className="bg-linear-to-br from-red-50 to-white px-6 pt-6 pb-5">
+      <DialogContent className="sm:max-w-[400px] rounded-[16px] p-0 border border-border bg-card shadow-2xl overflow-hidden">
+        <div className="bg-linear-to-br from-red-500/10 to-transparent px-6 pt-6 pb-5 border-b border-border/50">
           <DialogHeader>
-            <div className="w-11 h-11 bg-red-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm shadow-red-200">
+            <div className="w-11 h-11 bg-red-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-red-500/20">
               <XCircle className="w-5 h-5 text-white" />
             </div>
-            <DialogTitle className="text-xl font-black tracking-[-0.025em]">
+            <DialogTitle className="text-xl font-black tracking-[-0.025em] text-foreground">
               Reject Payment
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500 mt-1">
-              Rejecting payment from <strong>{tenantName}</strong>. Please
+            <DialogDescription className="text-sm text-muted-foreground mt-1">
+              Rejecting payment from <strong className="text-foreground">{tenantName}</strong>. Please
               provide a reason.
             </DialogDescription>
           </DialogHeader>
@@ -88,13 +88,13 @@ export function RejectDialog({
           {error && (
             <Alert
               variant="destructive"
-              className="border-red-200 bg-red-50 rounded-[10px] py-3"
+              className="border-red-500/20 bg-red-500/10 rounded-[10px] py-3"
             >
-              <AlertDescription className="text-xs">{error}</AlertDescription>
+              <AlertDescription className="text-xs text-red-500">{error}</AlertDescription>
             </Alert>
           )}
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold text-gray-700">
+            <Label className="text-sm font-semibold text-foreground/80">
               Reason for Rejection <span className="text-red-500">*</span>
             </Label>
             <Textarea
@@ -106,7 +106,7 @@ export function RejectDialog({
               placeholder="e.g. Proof of payment is unclear. Please re-upload a clearer image."
               rows={3}
               disabled={loading}
-              className="rounded-xl text-sm border-gray-200 focus-visible:border-red-400 resize-none"
+              className="rounded-xl text-sm border-border bg-muted/30 focus-visible:border-red-500/50 focus-visible:ring-1 focus-visible:ring-red-500/50 resize-none placeholder:text-muted-foreground/50"
             />
           </div>
           <div className="flex gap-3 pt-1">
@@ -119,14 +119,14 @@ export function RejectDialog({
                 onOpenChange(false);
               }}
               disabled={loading}
-              className="flex-1 h-11 rounded-xl border-gray-200 font-semibold text-gray-600"
+              className="flex-1 h-11 rounded-xl border-border bg-muted/20 font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold gap-2 hover:shadow-lg hover:shadow-red-200 hover:-translate-y-px transition-all disabled:opacity-70"
+              className="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold gap-2 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:-translate-y-px transition-all disabled:opacity-70"
             >
               {loading ? (
                 <>
